@@ -6,6 +6,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
+ * @Description 测试用的API实体
  * @Date 2024/06/09
  * @Author lyj
  */
