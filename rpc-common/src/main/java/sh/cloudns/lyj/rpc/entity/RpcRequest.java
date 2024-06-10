@@ -2,6 +2,7 @@ package sh.cloudns.lyj.rpc.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
@@ -11,6 +12,7 @@ import java.io.Serializable;
  * @Author lyj
  */
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 public class RpcRequest implements Serializable {
 
@@ -38,6 +40,4 @@ public class RpcRequest implements Serializable {
      * 被调用方面的参数类型
      */
     private Class<?>[] paramTypes;
-
-    public RpcRequest(){}
 }

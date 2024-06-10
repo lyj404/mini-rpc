@@ -1,6 +1,7 @@
 package sh.cloudns.lyj.rpc.entity;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import sh.cloudns.lyj.rpc.enums.ResponseCodeEnum;
 
 import java.io.Serializable;
@@ -11,6 +12,7 @@ import java.io.Serializable;
  * @Author lyj
  */
 @Data
+@NoArgsConstructor
 public class RpcResponse<T> implements Serializable {
 
     /**
@@ -32,8 +34,6 @@ public class RpcResponse<T> implements Serializable {
      * 响应数据
      */
     private T data;
-
-    public RpcResponse(){}
 
     /**
      * 成功的响应
