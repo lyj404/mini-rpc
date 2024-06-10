@@ -1,7 +1,8 @@
-package sh.cloudns.lyj.rpc.client;
+package sh.cloudns.lyj.rpc.socket.client;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sh.cloudns.lyj.rpc.RpcClient;
 import sh.cloudns.lyj.rpc.entity.RpcRequest;
 import sh.cloudns.lyj.rpc.entity.RpcResponse;
 import sh.cloudns.lyj.rpc.enums.ResponseCodeEnum;
@@ -14,14 +15,22 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 /**
- * @Description 远程方法调用的消费者（客户端）
+ * @Description Socket方式远程方法调用的消费者（客户端）
  * @Date 2024/6/9
  * @Author lyj
  */
-public class RpcClient {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RpcClient.class);
+public class SocketClient implements RpcClient {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SocketClient.class);
+    private final String host;
+    private final int port;
 
-    public Object sendRequest(RpcRequest request, String host, int port){
+    public SocketClient(String host, int port) {
+        this.host = host;
+        this.port = port;
+    }
+
+    @Override
+    public Object sendRequest(RpcRequest request){
         try (Socket socket = new Socket(host, port)) {
             // 创建一个输出流，用于向服务器发送请求对象
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());

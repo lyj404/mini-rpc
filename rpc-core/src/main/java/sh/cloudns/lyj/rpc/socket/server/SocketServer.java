@@ -1,7 +1,9 @@
-package sh.cloudns.lyj.rpc.server;
+package sh.cloudns.lyj.rpc.socket.server;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sh.cloudns.lyj.rpc.RequestHandler;
+import sh.cloudns.lyj.rpc.RpcServer;
 import sh.cloudns.lyj.rpc.registry.ServiceRegistry;
 
 import java.io.IOException;
@@ -10,12 +12,12 @@ import java.net.Socket;
 import java.util.concurrent.*;
 
 /**
- * @Description 远程方法调用的提供者（服务端）
+ * @Description Socket方式远程方法调用的提供者（服务端）
  * @Date 2024/6/9
  * @Author lyj
  */
-public class RpcServer {
-    public static final Logger LOGGER = LoggerFactory.getLogger(RpcServer.class);
+public class SocketServer implements RpcServer {
+    public static final Logger LOGGER = LoggerFactory.getLogger(SocketServer.class);
     private final ExecutorService threadPool;
 
     /**
@@ -42,7 +44,7 @@ public class RpcServer {
     private final ServiceRegistry serviceRegistry;
 
 
-    public RpcServer(ServiceRegistry serviceRegistry) {
+    public SocketServer(ServiceRegistry serviceRegistry) {
         this.serviceRegistry = serviceRegistry;
         // 阻塞队列，存储等待执行的任务
         BlockingQueue<Runnable> workingQueue = new ArrayBlockingQueue<Runnable>(BLOCKING_QUEUE_CAPACITY);
@@ -52,6 +54,7 @@ public class RpcServer {
                 TimeUnit.SECONDS, workingQueue, threadFactory);
     }
 
+    @Override
     public void start(int port){
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             LOGGER.info("RPC服务启动...");

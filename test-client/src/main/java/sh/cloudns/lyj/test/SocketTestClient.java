@@ -1,17 +1,19 @@
 package sh.cloudns.lyj.test;
 
+import sh.cloudns.lyj.rpc.RpcClientProxy;
 import sh.cloudns.lyj.rpc.api.HelloObject;
 import sh.cloudns.lyj.rpc.api.HelloService;
-import sh.cloudns.lyj.rpc.client.RpcClientProxy;
+import sh.cloudns.lyj.rpc.socket.client.SocketClient;
 
 /**
  * @Description 测试用的消费者（客户端）
  * @Date 2024/6/9
  * @Author lyj
  */
-public class TestClient {
+public class SocketTestClient {
     public static void main(String[] args) {
-        RpcClientProxy proxy = new RpcClientProxy("127.0.0.1", 9000);
+        SocketClient client = new SocketClient("127.0.0.1", 9000);
+        RpcClientProxy proxy = new RpcClientProxy(client);
         HelloService helloService = proxy.getProxy(HelloService.class);
         HelloObject object = new HelloObject(12, "this is a message");
         String res = helloService.hello(object);

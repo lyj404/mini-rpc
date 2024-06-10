@@ -4,7 +4,7 @@
     <parent>
         <groupId>sh.cloudns.lyj</groupId>
         <artifactId>mini-rpc</artifactId>
-        <version>1.0.0</version>
+        <version>1.1.0</version>
     </parent>
 
     <artifactId>rpc-core</artifactId>
@@ -13,7 +13,31 @@
         <dependency>
             <groupId>sh.cloudns.lyj</groupId>
             <artifactId>rpc-common</artifactId>
-            <version>1.0.0</version>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>${netty-version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.17.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.17.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.17.0</version>
         </dependency>
     </dependencies>
 </project>

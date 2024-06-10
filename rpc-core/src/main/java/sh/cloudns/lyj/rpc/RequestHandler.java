@@ -1,4 +1,4 @@
-package sh.cloudns.lyj.rpc.server;
+package sh.cloudns.lyj.rpc;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

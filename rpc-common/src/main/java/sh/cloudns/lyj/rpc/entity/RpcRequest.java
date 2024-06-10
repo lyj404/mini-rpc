@@ -1,6 +1,6 @@
 package sh.cloudns.lyj.rpc.entity;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -11,7 +11,7 @@ import java.io.Serializable;
  * @Author lyj
  */
 @Data
-@Builder
+@AllArgsConstructor
 public class RpcRequest implements Serializable {
     /**
      * 被调用的接口名称
@@ -32,4 +32,6 @@ public class RpcRequest implements Serializable {
      * 被调用方面的参数类型
      */
     private Class<?>[] paramTypes;
+
+    public RpcRequest(){}
 }

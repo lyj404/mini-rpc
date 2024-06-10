@@ -1,4 +1,4 @@
-package sh.cloudns.lyj.rpc.client;
+package sh.cloudns.lyj.rpc;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,12 +15,10 @@ import java.lang.reflect.Proxy;
  */
 public class RpcClientProxy implements InvocationHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(RpcClientProxy.class);
-    private String host;
-    private int port;
+    private final RpcClient client;
 
-    public RpcClientProxy(String host, int port) {
-        this.host = host;
-        this.port = port;
+    public RpcClientProxy(RpcClient client) {
+        this.client = client;
     }
 
     @SuppressWarnings("unchecked") // 抑制未经检查的转换警告
@@ -37,14 +35,8 @@ public class RpcClientProxy implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         LOGGER.info("调用方法：{}#{}", method.getDeclaringClass().getName(), method.getName());
         // 创建RPC请求实例
-        RpcRequest request = RpcRequest.builder()
-                // method.getDeclaringClass().getName() 获取被代理接口的名称
-                .interfaceName(method.getDeclaringClass().getName())
-                .methodName(method.getName())
-                .parameters(args)
-                .paramTypes(method.getParameterTypes())
-                .build();
-        RpcClient client = new RpcClient();
-        return client.sendRequest(request, host, port);
+        RpcRequest request = new RpcRequest(method.getDeclaringClass().getName(),
+                method.getName(), args, method.getParameterTypes());
+        return client.sendRequest(request);
     }
 }
