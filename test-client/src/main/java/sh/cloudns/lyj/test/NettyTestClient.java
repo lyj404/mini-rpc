@@ -4,6 +4,7 @@ import sh.cloudns.lyj.rpc.RpcClientProxy;
 import sh.cloudns.lyj.rpc.api.HelloObject;
 import sh.cloudns.lyj.rpc.api.HelloService;
 import sh.cloudns.lyj.rpc.netty.client.NettyClient;
+import sh.cloudns.lyj.rpc.serializer.HessianSerializer;
 
 /**
  * @Date 2024/6/10
@@ -12,6 +13,7 @@ import sh.cloudns.lyj.rpc.netty.client.NettyClient;
 public class NettyTestClient {
     public static void main(String[] args) {
         NettyClient client = new NettyClient("127.0.0.1", 9999);
+        client.setSerializer(new HessianSerializer());
         RpcClientProxy proxy = new RpcClientProxy(client);
         HelloService helloService = proxy.getProxy(HelloService.class);
         HelloObject object = new HelloObject(12, "this is a message");

@@ -8,10 +8,13 @@ import sh.cloudns.lyj.rpc.entity.RpcResponse;
 import sh.cloudns.lyj.rpc.enums.ResponseCodeEnum;
 import sh.cloudns.lyj.rpc.enums.RpcErrorEnum;
 import sh.cloudns.lyj.rpc.exception.RpcException;
+import sh.cloudns.lyj.rpc.serializer.CommonSerializer;
+import util.ObjectReader;
+import util.ObjectWriter;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 
 /**
@@ -24,6 +27,8 @@ public class SocketClient implements RpcClient {
     private final String host;
     private final int port;
 
+    private CommonSerializer serializer;
+
     public SocketClient(String host, int port) {
         this.host = host;
         this.port = port;
@@ -31,17 +36,20 @@ public class SocketClient implements RpcClient {
 
     @Override
     public Object sendRequest(RpcRequest request){
+        if (serializer == null) {
+            LOGGER.error("未设置序列化器");
+            throw new RpcException(RpcErrorEnum.SERIALIZER_NOT_FOUND);
+        }
         try (Socket socket = new Socket(host, port)) {
             // 创建一个输出流，用于向服务器发送请求对象
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+            OutputStream outputStream = socket.getOutputStream();
             // 创建一个输入流，用于从服务器接收响应对象
-            ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
-            // 将请求对象写入输出流，以便发送到服务器
-            objectOutputStream.writeObject(request);
-            // 刷新输出流，确保请求对象被发送出去
-            objectOutputStream.flush();
+            InputStream inputStream = socket.getInputStream();
+            // 将请求对象写入输出流
+            ObjectWriter.writeObject(outputStream, request, serializer);
             // 从输入流中读取服务器的响应对象
-            RpcResponse response = (RpcResponse) objectInputStream.readObject();
+            Object obj = ObjectReader.readObject(inputStream);
+            RpcResponse response = (RpcResponse) obj;
             // 判断响应对象是否为空
             if (response == null) {
                 LOGGER.error("服务调用失败, service：{}",request.getInterfaceName());
@@ -55,9 +63,14 @@ public class SocketClient implements RpcClient {
             }
             // 返回响应结果
             return response.getData();
-        } catch (IOException | ClassNotFoundException e){
+        } catch (IOException e){
             LOGGER.error("调用时发生错误：", e);
             throw new RpcException("服务调用失败：", e);
         }
+    }
+
+    @Override
+    public void setSerializer(CommonSerializer serializer) {
+        this.serializer = serializer;
     }
 }

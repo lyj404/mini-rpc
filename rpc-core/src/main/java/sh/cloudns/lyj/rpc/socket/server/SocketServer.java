@@ -4,12 +4,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sh.cloudns.lyj.rpc.RequestHandler;
 import sh.cloudns.lyj.rpc.RpcServer;
+import sh.cloudns.lyj.rpc.enums.RpcErrorEnum;
+import sh.cloudns.lyj.rpc.exception.RpcException;
 import sh.cloudns.lyj.rpc.registry.ServiceRegistry;
+import sh.cloudns.lyj.rpc.serializer.CommonSerializer;
+import sh.cloudns.lyj.rpc.util.ThreadPoolFactory;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
 
 /**
  * @Description Socket方式远程方法调用的提供者（服务端）
@@ -20,53 +24,38 @@ public class SocketServer implements RpcServer {
     public static final Logger LOGGER = LoggerFactory.getLogger(SocketServer.class);
     private final ExecutorService threadPool;
 
-    /**
-     * 核心线程数
-     */
-    private static final int CORE_POOL_SIZE = 5;
-
-    /**
-     * 最大线程数
-     */
-    private static final int MAXIMUM_POOL_SIZE = 50;
-
-    /**
-     * 线程的存活时间
-     */
-    private static final int KEEP_ALIVE_TIME = 60;
-
-    /**
-     * 阻塞队列，存储等待执行的任务
-     */
-    private static final int BLOCKING_QUEUE_CAPACITY = 100;
-
-    private RequestHandler requestHandler = new RequestHandler();
     private final ServiceRegistry serviceRegistry;
+    private CommonSerializer serializer;
+    private RequestHandler requestHandler = new RequestHandler();
 
 
     public SocketServer(ServiceRegistry serviceRegistry) {
         this.serviceRegistry = serviceRegistry;
-        // 阻塞队列，存储等待执行的任务
-        BlockingQueue<Runnable> workingQueue = new ArrayBlockingQueue<Runnable>(BLOCKING_QUEUE_CAPACITY);
-        // 创建一个默认线程工厂
-        ThreadFactory threadFactory = Executors.defaultThreadFactory();
-        this.threadPool = new ThreadPoolExecutor(CORE_POOL_SIZE, MAXIMUM_POOL_SIZE, KEEP_ALIVE_TIME,
-                TimeUnit.SECONDS, workingQueue, threadFactory);
+        this.threadPool = ThreadPoolFactory.createDefaultThreadPool("socket-rpc-server");
     }
 
     @Override
     public void start(int port){
+        if (serializer == null) {
+            LOGGER.error("未设置序列化器");
+            throw new RpcException(RpcErrorEnum.SERIALIZER_NOT_FOUND);
+        }
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             LOGGER.info("RPC服务启动...");
             Socket socket;
             // 循环等待客户端连接
             while ((socket = serverSocket.accept()) != null){
                 LOGGER.info("消费者连接：{}:{}", socket.getInetAddress(), socket.getPort());
-                this.threadPool.execute(new RequestHandlerThread(socket, requestHandler, serviceRegistry));
+                this.threadPool.execute(new RequestHandlerThread(socket, requestHandler, serviceRegistry, serializer));
             }
             threadPool.shutdown();
         } catch (IOException e){
             LOGGER.error("连接是发生错误：", e);
         }
+    }
+
+    @Override
+    public void setSerializer(CommonSerializer serializer) {
+        this.serializer = serializer;
     }
 }

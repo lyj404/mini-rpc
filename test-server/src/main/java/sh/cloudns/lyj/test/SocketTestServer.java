@@ -3,6 +3,7 @@ package sh.cloudns.lyj.test;
 import sh.cloudns.lyj.rpc.api.HelloService;
 import sh.cloudns.lyj.rpc.registry.DefaultServiceRegistry;
 import sh.cloudns.lyj.rpc.registry.ServiceRegistry;
+import sh.cloudns.lyj.rpc.serializer.HessianSerializer;
 import sh.cloudns.lyj.rpc.socket.server.SocketServer;
 
 /**
@@ -16,6 +17,7 @@ public class SocketTestServer {
         ServiceRegistry serviceRegistry = new DefaultServiceRegistry();
         serviceRegistry.register(helloService);
         SocketServer socketServer = new SocketServer(serviceRegistry);
+        socketServer.setSerializer(new HessianSerializer());
         socketServer.start(9000);
     }
 }

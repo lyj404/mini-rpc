@@ -4,6 +4,7 @@ import sh.cloudns.lyj.rpc.api.HelloService;
 import sh.cloudns.lyj.rpc.netty.server.NettyServer;
 import sh.cloudns.lyj.rpc.registry.DefaultServiceRegistry;
 import sh.cloudns.lyj.rpc.registry.ServiceRegistry;
+import sh.cloudns.lyj.rpc.serializer.KryoSerializer;
 
 /**
  * @Date 2024/6/10
@@ -15,6 +16,7 @@ public class NettyTestServer {
         ServiceRegistry registry = new DefaultServiceRegistry();
         registry.register(helloService);
         NettyServer server = new NettyServer();
+        server.setSerializer(new KryoSerializer());
         server.start(9999);
     }
 }

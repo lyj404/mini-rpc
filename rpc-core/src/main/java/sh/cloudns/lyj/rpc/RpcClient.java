@@ -1,6 +1,7 @@
 package sh.cloudns.lyj.rpc;
 
 import sh.cloudns.lyj.rpc.entity.RpcRequest;
+import sh.cloudns.lyj.rpc.serializer.CommonSerializer;
 
 /**
  * @Description 客户端通用接口
@@ -14,4 +15,10 @@ public interface RpcClient {
      * @return 响应结果
      */
     Object sendRequest(RpcRequest rpcRequest);
+
+    /**
+     * 设置序列化器
+     * @param serializer 序列化器
+     */
+    void setSerializer(CommonSerializer serializer);
 }
