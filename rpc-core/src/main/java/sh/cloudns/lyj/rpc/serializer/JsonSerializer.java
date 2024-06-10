@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sh.cloudns.lyj.rpc.entity.RpcRequest;
 import sh.cloudns.lyj.rpc.enums.SerializerCodeEnum;
+import sh.cloudns.lyj.rpc.exception.SerializeException;
 
 import java.io.IOException;
 
@@ -24,9 +25,8 @@ public class JsonSerializer implements CommonSerializer{
         try {
             return objectMapper.writeValueAsBytes(obj);
         } catch (JsonProcessingException e){
-            LOGGER.error("序列化是产生错误：{}", e.getMessage());;
-            e.printStackTrace();
-            return null;
+            LOGGER.error("序列化时产生错误：{}", e.getMessage());
+            throw new SerializeException("序列化时产生错误");
         }
     }
 
@@ -39,9 +39,8 @@ public class JsonSerializer implements CommonSerializer{
             }
             return obj;
         } catch (IOException e){
-            LOGGER.error("发序列化是发生错误：{}", e.getMessage());;
-            e.printStackTrace();
-            return null;
+            LOGGER.error("序列化时产生错误：{}", e.getMessage());
+            throw new SerializeException("序列化时产生错误");
         }
     }
 
