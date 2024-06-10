@@ -2,7 +2,6 @@ package sh.cloudns.lyj.rpc.netty.client;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
@@ -21,6 +20,9 @@ import sh.cloudns.lyj.rpc.entity.RpcResponse;
 import sh.cloudns.lyj.rpc.enums.RpcErrorEnum;
 import sh.cloudns.lyj.rpc.exception.RpcException;
 import sh.cloudns.lyj.rpc.serializer.CommonSerializer;
+
+import java.net.InetSocketAddress;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @Date 2024/6/10
@@ -54,6 +56,7 @@ public class NettyClient implements RpcClient {
             LOGGER.error("未设置序列化器");
             throw new RpcException(RpcErrorEnum.SERIALIZER_NOT_FOUND);
         }
+        AtomicReference<Object> result = new AtomicReference<>(null);
         BOOTSTRAP.handler(new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(SocketChannel channel) throws Exception {
@@ -64,12 +67,8 @@ public class NettyClient implements RpcClient {
             }
         });
         try {
-            // 同步连接到服务器
-            ChannelFuture future = BOOTSTRAP.connect(host, port).sync();
-            LOGGER.info("客户端连接到服务器：{}:{}", host, port);
-            // 获取 Netty 通道对象
-            Channel channel = future.channel();
-            if (channel != null){
+            Channel channel = ChannelProvider.get(new InetSocketAddress(host, port), serializer);
+            if (channel.isActive()) {
                 // 将请求写入通道，并刷新发送缓冲区
                 channel.writeAndFlush(rpcRequest).addListener(future1 -> {
                     if (future1.isSuccess()){
@@ -81,15 +80,16 @@ public class NettyClient implements RpcClient {
                 // 等待通道关闭
                 channel.closeFuture().sync();
                 // 从通道属性中获取存储的 RpcResponse 对象
-                AttributeKey<RpcResponse> key = AttributeKey.valueOf("rpcResponse");
+                AttributeKey<RpcResponse> key = AttributeKey.valueOf("rpcResponse" + rpcRequest.getRequestId());
                 RpcResponse rpcResponse = channel.attr(key).get();
-                // 返回 RpcResponse 中的数据
-                return rpcResponse.getData();
+                result.set(rpcResponse.getData());
+            } else {
+                System.exit(0);
             }
         } catch (InterruptedException e){
             LOGGER.error("发送消息是产生错误：{}", e);
         }
-        return null;
+        return result.get();
     }
 
     @Override

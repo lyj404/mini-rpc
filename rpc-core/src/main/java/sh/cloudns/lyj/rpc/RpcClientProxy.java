@@ -7,6 +7,7 @@ import sh.cloudns.lyj.rpc.entity.RpcRequest;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.UUID;
 
 /**
  * @Description RPC客户端动态代理
@@ -35,7 +36,7 @@ public class RpcClientProxy implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         LOGGER.info("调用方法：{}#{}", method.getDeclaringClass().getName(), method.getName());
         // 创建RPC请求实例
-        RpcRequest request = new RpcRequest(method.getDeclaringClass().getName(),
+        RpcRequest request = new RpcRequest(UUID.randomUUID().toString(), method.getDeclaringClass().getName(),
                 method.getName(), args, method.getParameterTypes());
         return client.sendRequest(request);
     }

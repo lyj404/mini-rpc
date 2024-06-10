@@ -9,6 +9,7 @@ import sh.cloudns.lyj.rpc.enums.ResponseCodeEnum;
 import sh.cloudns.lyj.rpc.enums.RpcErrorEnum;
 import sh.cloudns.lyj.rpc.exception.RpcException;
 import sh.cloudns.lyj.rpc.serializer.CommonSerializer;
+import sh.cloudns.lyj.rpc.util.RpcMessageChecker;
 import util.ObjectReader;
 import util.ObjectWriter;
 
@@ -61,6 +62,7 @@ public class SocketClient implements RpcClient {
                 LOGGER.error("服务调用失败, service：{}, response: {}",request.getInterfaceName(), response);
                 throw new RpcException(RpcErrorEnum.SERVICE_INVOCATION_FAILURE, " service:" + request.getInterfaceName());
             }
+            RpcMessageChecker.check(request, response);
             // 返回响应结果
             return response.getData();
         } catch (IOException e){

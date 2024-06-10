@@ -22,7 +22,7 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<RpcResponse>
         try {
             LOGGER.info(String.format("客户端接收到信息： %s", msg));
             // 创建一个 AttributeKey，用于在 Channel 中存储 RpcResponse 对象
-            AttributeKey<RpcResponse> key = AttributeKey.valueOf("rpcResponse");
+            AttributeKey<RpcResponse> key = AttributeKey.valueOf("rpcResponse" + msg.getRequestId());
             // 使用 AttributeKey 将 RpcResponse 对象存储到 Channel 的属性中
             ctx.channel().attr(key).set(msg);
             ctx.channel().close();
