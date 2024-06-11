@@ -1,10 +1,10 @@
 package sh.cloudns.lyj.test;
 
-import sh.cloudns.lyj.rpc.RpcClientProxy;
+import sh.cloudns.lyj.rpc.transport.RpcClientProxy;
 import sh.cloudns.lyj.rpc.api.HelloObject;
 import sh.cloudns.lyj.rpc.api.HelloService;
 import sh.cloudns.lyj.rpc.serializer.KryoSerializer;
-import sh.cloudns.lyj.rpc.socket.client.SocketClient;
+import sh.cloudns.lyj.rpc.transport.socket.client.SocketClient;
 
 /**
  * @Description 测试用的消费者（客户端）
@@ -13,7 +13,7 @@ import sh.cloudns.lyj.rpc.socket.client.SocketClient;
  */
 public class SocketTestClient {
     public static void main(String[] args) {
-        SocketClient client = new SocketClient("127.0.0.1", 9999);
+        SocketClient client = new SocketClient();
         client.setSerializer(new KryoSerializer());
         RpcClientProxy proxy = new RpcClientProxy(client);
         HelloService helloService = proxy.getProxy(HelloService.class);

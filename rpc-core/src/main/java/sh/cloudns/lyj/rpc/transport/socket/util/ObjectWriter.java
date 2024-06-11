@@ -1,4 +1,4 @@
-package util;
+package sh.cloudns.lyj.rpc.transport.socket.util;
 
 import sh.cloudns.lyj.rpc.entity.RpcRequest;
 import sh.cloudns.lyj.rpc.enums.PackageTypeEnum;

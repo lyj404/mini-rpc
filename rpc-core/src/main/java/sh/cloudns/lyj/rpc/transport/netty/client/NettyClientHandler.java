@@ -1,4 +1,4 @@
-package sh.cloudns.lyj.rpc.netty.client;
+package sh.cloudns.lyj.rpc.transport.netty.client;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;

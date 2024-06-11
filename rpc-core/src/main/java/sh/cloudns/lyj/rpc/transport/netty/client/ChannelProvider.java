@@ -1,4 +1,4 @@
-package sh.cloudns.lyj.rpc.netty.client;
+package sh.cloudns.lyj.rpc.transport.netty.client;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -31,6 +31,7 @@ public class ChannelProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(ChannelProvider.class);
     private static EventLoopGroup eventLoopGroup;
     private static Bootstrap bootstrap = initializeBootstrap();
+
 
     /**
      * 重试次数

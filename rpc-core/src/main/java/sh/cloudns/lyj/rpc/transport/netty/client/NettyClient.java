@@ -1,4 +1,4 @@
-package sh.cloudns.lyj.rpc.netty.client;
+package sh.cloudns.lyj.rpc.transport.netty.client;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -12,7 +12,9 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.AttributeKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sh.cloudns.lyj.rpc.RpcClient;
+import sh.cloudns.lyj.rpc.registry.NacosServiceRegistry;
+import sh.cloudns.lyj.rpc.registry.ServiceRegistry;
+import sh.cloudns.lyj.rpc.transport.RpcClient;
 import sh.cloudns.lyj.rpc.codec.CommonDecoder;
 import sh.cloudns.lyj.rpc.codec.CommonEncoder;
 import sh.cloudns.lyj.rpc.entity.RpcRequest;
@@ -32,6 +34,7 @@ public class NettyClient implements RpcClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyClient.class);
 
     private static final Bootstrap BOOTSTRAP;
+    private final ServiceRegistry serviceRegistry;
 
     private CommonSerializer serializer;
 
@@ -43,11 +46,8 @@ public class NettyClient implements RpcClient {
                 .option(ChannelOption.SO_KEEPALIVE, true);
     }
 
-    private String host;
-    private int port;
-    public NettyClient(String host, int port) {
-        this.host = host;
-        this.port = port;
+    public NettyClient() {
+        this.serviceRegistry = new NacosServiceRegistry();
     }
 
     @Override
@@ -67,7 +67,8 @@ public class NettyClient implements RpcClient {
             }
         });
         try {
-            Channel channel = ChannelProvider.get(new InetSocketAddress(host, port), serializer);
+            InetSocketAddress inetSocketAddress = serviceRegistry.lookupService(rpcRequest.getInterfaceName());
+            Channel channel = ChannelProvider.get(inetSocketAddress, serializer);
             if (channel.isActive()) {
                 // 将请求写入通道，并刷新发送缓冲区
                 channel.writeAndFlush(rpcRequest).addListener(future1 -> {

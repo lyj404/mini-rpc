@@ -18,7 +18,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ProtobufSerializer implements CommonSerializer{
     private LinkedBuffer buffer = LinkedBuffer.allocate(LinkedBuffer.DEFAULT_BUFFER_SIZE);
     private Map<Class<?>, Schema<?>> schemaCache = new ConcurrentHashMap<>();
+
     @Override
+    @SuppressWarnings("unchecked")
     public byte[] serialize(Object obj) {
         // 获取待序列化对象的类对象
         Class clazz = obj.getClass();
@@ -36,6 +38,7 @@ public class ProtobufSerializer implements CommonSerializer{
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Object deserialize(byte[] bytes, Class<?> clazz) {
         // 根据给定的类对象获取对应的 Schema 实例
         Schema schema = getSchema(clazz);
@@ -47,6 +50,7 @@ public class ProtobufSerializer implements CommonSerializer{
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public int getCode() {
         return SerializerCodeEnum.valueOf("PROTOBUF").getCode();
     }

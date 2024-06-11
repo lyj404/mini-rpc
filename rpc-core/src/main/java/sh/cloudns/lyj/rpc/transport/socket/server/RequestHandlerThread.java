@@ -1,14 +1,14 @@
-package sh.cloudns.lyj.rpc.socket.server;
+package sh.cloudns.lyj.rpc.transport.socket.server;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sh.cloudns.lyj.rpc.RequestHandler;
+import sh.cloudns.lyj.rpc.handler.RequestHandler;
 import sh.cloudns.lyj.rpc.entity.RpcRequest;
 import sh.cloudns.lyj.rpc.entity.RpcResponse;
 import sh.cloudns.lyj.rpc.registry.ServiceRegistry;
 import sh.cloudns.lyj.rpc.serializer.CommonSerializer;
-import util.ObjectReader;
-import util.ObjectWriter;
+import sh.cloudns.lyj.rpc.transport.socket.util.ObjectReader;
+import sh.cloudns.lyj.rpc.transport.socket.util.ObjectWriter;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,9 +43,7 @@ public class RequestHandlerThread implements Runnable{
             RpcRequest rpcRequest = (RpcRequest) ObjectReader.readObject(inputStream);
             // 获取调用的接口名
             String interfaceName = rpcRequest.getInterfaceName();
-            Object service = serviceRegistry.getService(interfaceName);
-            // 获取响应结果
-            Object result = requestHandler.handle(rpcRequest, service);
+            Object result = requestHandler.handle(rpcRequest);
             RpcResponse<Object> response = RpcResponse.success(result,rpcRequest.getRequestId());
             ObjectWriter.writeObject(outputStream, response, serializer);
         } catch (IOException e){

@@ -1,9 +1,9 @@
 package sh.cloudns.lyj.test;
 
-import sh.cloudns.lyj.rpc.RpcClientProxy;
+import sh.cloudns.lyj.rpc.transport.RpcClientProxy;
 import sh.cloudns.lyj.rpc.api.HelloObject;
 import sh.cloudns.lyj.rpc.api.HelloService;
-import sh.cloudns.lyj.rpc.netty.client.NettyClient;
+import sh.cloudns.lyj.rpc.transport.netty.client.NettyClient;
 import sh.cloudns.lyj.rpc.serializer.ProtobufSerializer;
 
 /**
@@ -12,7 +12,7 @@ import sh.cloudns.lyj.rpc.serializer.ProtobufSerializer;
  */
 public class NettyTestClient {
     public static void main(String[] args) {
-        NettyClient client = new NettyClient("127.0.0.1", 9999);
+        NettyClient client = new NettyClient();
         client.setSerializer(new ProtobufSerializer());
         RpcClientProxy proxy = new RpcClientProxy(client);
         HelloService helloService = proxy.getProxy(HelloService.class);

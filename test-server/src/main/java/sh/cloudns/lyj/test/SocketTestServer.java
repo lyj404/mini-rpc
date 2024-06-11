@@ -1,10 +1,8 @@
 package sh.cloudns.lyj.test;
 
 import sh.cloudns.lyj.rpc.api.HelloService;
-import sh.cloudns.lyj.rpc.registry.DefaultServiceRegistry;
-import sh.cloudns.lyj.rpc.registry.ServiceRegistry;
 import sh.cloudns.lyj.rpc.serializer.HessianSerializer;
-import sh.cloudns.lyj.rpc.socket.server.SocketServer;
+import sh.cloudns.lyj.rpc.transport.socket.server.SocketServer;
 
 /**
  * @Description 测试用的服务提供方（服务端）
@@ -14,10 +12,8 @@ import sh.cloudns.lyj.rpc.socket.server.SocketServer;
 public class SocketTestServer {
     public static void main(String[] args) {
         HelloService helloService = new HelloServiceImpl();
-        ServiceRegistry serviceRegistry = new DefaultServiceRegistry();
-        serviceRegistry.register(helloService);
-        SocketServer socketServer = new SocketServer(serviceRegistry);
+        SocketServer socketServer = new SocketServer("127.0.0.1", 9999);
         socketServer.setSerializer(new HessianSerializer());
-        socketServer.start(9999);
+        socketServer.publishService(helloService, HelloService.class);
     }
 }

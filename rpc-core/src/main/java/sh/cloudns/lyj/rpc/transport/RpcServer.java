@@ -1,4 +1,4 @@
-package sh.cloudns.lyj.rpc;
+package sh.cloudns.lyj.rpc.transport;
 
 import sh.cloudns.lyj.rpc.serializer.CommonSerializer;
 
@@ -10,13 +10,20 @@ import sh.cloudns.lyj.rpc.serializer.CommonSerializer;
 public interface RpcServer {
     /**
      * 启动服务类
-     * @param port 端口号
      */
-    void start(int port);
+    void start();
 
     /**
      * 设置序列化器
      * @param serializer 序列化器
      */
     void setSerializer(CommonSerializer serializer);
+
+    /**
+     * 发布服务
+     * @param service 服务
+     * @param serviceClass 服务的类
+     * @param <T> 泛型
+     */
+    <T> void publishService(Object service, Class<T> serviceClass);
 }
