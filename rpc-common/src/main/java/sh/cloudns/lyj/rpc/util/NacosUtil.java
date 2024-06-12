@@ -10,7 +10,10 @@ import sh.cloudns.lyj.rpc.enums.RpcErrorEnum;
 import sh.cloudns.lyj.rpc.exception.RpcException;
 
 import java.net.InetSocketAddress;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @description 管理nacos连接的工具类
@@ -20,7 +23,15 @@ import java.util.List;
 public class NacosUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(NacosUtil.class);
 
+    private static final NamingService NAMING_SERVICE;
+    private static final Set<String> serviceNames = new HashSet<>();
+    private static InetSocketAddress ADDRESS;
+
     private static final String SERVER_ADDR = "127.0.0.1:8848";
+
+    static {
+        NAMING_SERVICE = getNacosNamingService();
+    }
 
     public static NamingService getNacosNamingService(){
         try {
@@ -31,11 +42,29 @@ public class NacosUtil {
         }
     }
 
-    public static void registerService(NamingService namingService, String serviceName, InetSocketAddress address) throws NacosException{
-        namingService.registerInstance(serviceName, address.getHostName(), address.getPort());
+    public static void registerService(String serviceName, InetSocketAddress address) throws NacosException{
+        NAMING_SERVICE.registerInstance(serviceName, address.getHostName(), address.getPort());
+        NacosUtil.ADDRESS = address;
+        serviceNames.add(serviceName);
     }
 
-    public static List<Instance> getAllInstance(NamingService namingService, String serviceName) throws NacosException {
-        return namingService.getAllInstances(serviceName);
+    public static List<Instance> getAllInstance(String serviceName) throws NacosException {
+        return NAMING_SERVICE.getAllInstances(serviceName);
+    }
+
+    public static void clearRegister(){
+        if (!serviceNames.isEmpty() && ADDRESS != null){
+            String host = ADDRESS.getHostName();
+            int port = ADDRESS.getPort();
+            Iterator<String> iterator = serviceNames.iterator();
+            while (iterator.hasNext()){
+                String serviceName = iterator.next();
+                try {
+                    NAMING_SERVICE.deregisterInstance(serviceName, host, port);
+                } catch (NacosException e){
+                    LOGGER.error("注销服务 {} 失败", serviceName, e);
+                }
+            }
+        }
     }
 }

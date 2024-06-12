@@ -1,4 +1,4 @@
-package sh.cloudns.lyj.rpc.util;
+package sh.cloudns.lyj.rpc.factory;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 

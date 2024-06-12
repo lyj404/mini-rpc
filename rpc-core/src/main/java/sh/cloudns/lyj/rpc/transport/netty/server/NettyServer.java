@@ -12,6 +12,7 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sh.cloudns.lyj.rpc.hook.ShutdownHook;
 import sh.cloudns.lyj.rpc.provider.ServiceProvider;
 import sh.cloudns.lyj.rpc.provider.ServiceProviderImpl;
 import sh.cloudns.lyj.rpc.registry.NacosServiceRegistry;
@@ -88,6 +89,7 @@ public class NettyServer implements RpcServer {
                         }
                     });
             ChannelFuture future = bootstrap.bind(host, port).sync();
+            ShutdownHook.getShutdownHook().addClearAllHook();
             future.channel().closeFuture().sync();
         } catch (InterruptedException e){
             LOGGER.error("启动服务器发生意外：{}", e);

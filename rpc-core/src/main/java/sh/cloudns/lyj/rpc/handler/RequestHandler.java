@@ -26,27 +26,21 @@ public class RequestHandler {
     }
 
     public Object handle(RpcRequest rpcRequest) {
-        Object result = null;
         Object service = SERVICE_PROVIDER.getServiceProvider(rpcRequest.getInterfaceName());
-        try {
-            result = this.invokeTargetMethod(rpcRequest, service);
-            LOGGER.info("服务：{}成功调用方法：{}", rpcRequest.getInterfaceName(),
-                    rpcRequest.getMethodName());
-        } catch (IllegalAccessException | InvocationTargetException e){
-            LOGGER.error("调用或发送时有错误发生：", e);
-        }
-        return result;
+        return invokeTargetMethod(rpcRequest, service);
     }
 
-    private Object invokeTargetMethod(RpcRequest rpcRequest, Object service) throws InvocationTargetException, IllegalAccessException{
-        Method method;
+    private Object invokeTargetMethod(RpcRequest rpcRequest, Object service) {
+        Object result;
         try {
             // 根据请求中的 方法名 和 参数类型，在服务对象中查找对应的方法
-            method = service.getClass().getMethod(rpcRequest.getMethodName(),
+            Method method = service.getClass().getMethod(rpcRequest.getMethodName(),
                     rpcRequest.getParamTypes());
-        } catch (NoSuchMethodException e){
+            result = method.invoke(service, rpcRequest.getParameters());
+            LOGGER.info("服务：{} 成功调用方法：{}", rpcRequest.getInterfaceName(), rpcRequest.getMethodName());
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e){
             return RpcResponse.fail(ResponseCodeEnum.METHOD_NOT_FOUND, rpcRequest.getRequestId());
         }
-        return method.invoke(service, rpcRequest.getParameters());
+        return result;
     }
 }

@@ -1,7 +1,6 @@
 package sh.cloudns.lyj.rpc.registry;
 
 import com.alibaba.nacos.api.exception.NacosException;
-import com.alibaba.nacos.api.naming.NamingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sh.cloudns.lyj.rpc.enums.RpcErrorEnum;
@@ -18,16 +17,10 @@ import java.net.InetSocketAddress;
 public class NacosServiceRegistry implements ServiceRegistry{
     private static final Logger LOGGER = LoggerFactory.getLogger(NacosServiceRegistry.class);
 
-    public final NamingService namingService;
-
-    public NacosServiceRegistry() {
-        this.namingService = NacosUtil.getNacosNamingService();
-    }
-
     @Override
     public void register(String serviceName, InetSocketAddress inetSocketAddress) {
         try {
-            NacosUtil.registerService(namingService, serviceName, inetSocketAddress);
+            NacosUtil.registerService(serviceName, inetSocketAddress);
         } catch (NacosException e){
             LOGGER.error("注册服务时发生错误：", e);
             throw new RpcException(RpcErrorEnum.REGISTER_SERVICE_FAILED);

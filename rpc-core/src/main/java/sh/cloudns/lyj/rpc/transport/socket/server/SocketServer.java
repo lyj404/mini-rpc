@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sh.cloudns.lyj.rpc.enums.RpcErrorEnum;
 import sh.cloudns.lyj.rpc.exception.RpcException;
+import sh.cloudns.lyj.rpc.factory.ThreadPoolFactory;
 import sh.cloudns.lyj.rpc.handler.RequestHandler;
 import sh.cloudns.lyj.rpc.provider.ServiceProvider;
 import sh.cloudns.lyj.rpc.provider.ServiceProviderImpl;
@@ -11,7 +12,6 @@ import sh.cloudns.lyj.rpc.registry.NacosServiceRegistry;
 import sh.cloudns.lyj.rpc.registry.ServiceRegistry;
 import sh.cloudns.lyj.rpc.serializer.CommonSerializer;
 import sh.cloudns.lyj.rpc.transport.RpcServer;
-import sh.cloudns.lyj.rpc.util.ThreadPoolFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -68,7 +68,7 @@ public class SocketServer implements RpcServer {
             // 循环等待客户端连接
             while ((socket = serverSocket.accept()) != null){
                 LOGGER.info("消费者连接：{}:{}", socket.getInetAddress(), socket.getPort());
-                this.threadPool.execute(new RequestHandlerThread(socket, requestHandler, serviceRegistry, serializer));
+                this.threadPool.execute(new SocketRequestHandlerThread(socket, requestHandler, serializer));
             }
             threadPool.shutdown();
         } catch (IOException e){

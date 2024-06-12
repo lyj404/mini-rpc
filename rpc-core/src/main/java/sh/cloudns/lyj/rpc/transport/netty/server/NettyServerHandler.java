@@ -9,8 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sh.cloudns.lyj.rpc.entity.RpcRequest;
 import sh.cloudns.lyj.rpc.entity.RpcResponse;
+import sh.cloudns.lyj.rpc.factory.SingletonFactory;
+import sh.cloudns.lyj.rpc.factory.ThreadPoolFactory;
 import sh.cloudns.lyj.rpc.handler.RequestHandler;
-import sh.cloudns.lyj.rpc.util.ThreadPoolFactory;
 
 import java.util.concurrent.ExecutorService;
 
@@ -21,13 +22,13 @@ import java.util.concurrent.ExecutorService;
  */
 public class NettyServerHandler extends SimpleChannelInboundHandler<RpcRequest> {
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyServerHandler.class);
-    private static RequestHandler requestHandler;
     private static final String THREAD_NAME_PREFIX = "netty-server-handler";
-    private static final ExecutorService threadPool;
+    private RequestHandler requestHandler;
+    private final ExecutorService threadPool;
 
-    static {
-        requestHandler = new RequestHandler();
-        threadPool = ThreadPoolFactory.createDefaultThreadPool(THREAD_NAME_PREFIX);
+    public NettyServerHandler() {
+        this.requestHandler = SingletonFactory.getInstance(RequestHandler.class);
+        this.threadPool = ThreadPoolFactory.createDefaultThreadPool(THREAD_NAME_PREFIX);
     }
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RpcRequest msg) throws Exception {
