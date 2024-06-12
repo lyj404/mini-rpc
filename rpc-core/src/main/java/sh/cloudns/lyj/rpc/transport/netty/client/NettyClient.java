@@ -12,16 +12,16 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.AttributeKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sh.cloudns.lyj.rpc.registry.NacosServiceRegistry;
-import sh.cloudns.lyj.rpc.registry.ServiceRegistry;
-import sh.cloudns.lyj.rpc.transport.RpcClient;
 import sh.cloudns.lyj.rpc.codec.CommonDecoder;
 import sh.cloudns.lyj.rpc.codec.CommonEncoder;
 import sh.cloudns.lyj.rpc.entity.RpcRequest;
 import sh.cloudns.lyj.rpc.entity.RpcResponse;
 import sh.cloudns.lyj.rpc.enums.RpcErrorEnum;
 import sh.cloudns.lyj.rpc.exception.RpcException;
+import sh.cloudns.lyj.rpc.registry.NacosServiceDiscovery;
+import sh.cloudns.lyj.rpc.registry.ServiceDiscovery;
 import sh.cloudns.lyj.rpc.serializer.CommonSerializer;
+import sh.cloudns.lyj.rpc.transport.RpcClient;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicReference;
@@ -34,7 +34,7 @@ public class NettyClient implements RpcClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyClient.class);
 
     private static final Bootstrap BOOTSTRAP;
-    private final ServiceRegistry serviceRegistry;
+    private final ServiceDiscovery serviceDiscovery;
 
     private CommonSerializer serializer;
 
@@ -47,7 +47,7 @@ public class NettyClient implements RpcClient {
     }
 
     public NettyClient() {
-        this.serviceRegistry = new NacosServiceRegistry();
+        this.serviceDiscovery = new NacosServiceDiscovery();
     }
 
     @Override
@@ -67,7 +67,7 @@ public class NettyClient implements RpcClient {
             }
         });
         try {
-            InetSocketAddress inetSocketAddress = serviceRegistry.lookupService(rpcRequest.getInterfaceName());
+            InetSocketAddress inetSocketAddress = serviceDiscovery.lookupService(rpcRequest.getInterfaceName());
             Channel channel = ChannelProvider.get(inetSocketAddress, serializer);
             if (channel.isActive()) {
                 // 将请求写入通道，并刷新发送缓冲区

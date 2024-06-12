@@ -1,16 +1,14 @@
 package sh.cloudns.lyj.rpc.registry;
 
 import com.alibaba.nacos.api.exception.NacosException;
-import com.alibaba.nacos.api.naming.NamingFactory;
 import com.alibaba.nacos.api.naming.NamingService;
-import com.alibaba.nacos.api.naming.pojo.Instance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sh.cloudns.lyj.rpc.enums.RpcErrorEnum;
 import sh.cloudns.lyj.rpc.exception.RpcException;
+import sh.cloudns.lyj.rpc.util.NacosUtil;
 
 import java.net.InetSocketAddress;
-import java.util.List;
 
 /**
  * @Description Nacos服务注册中心
@@ -20,37 +18,19 @@ import java.util.List;
 public class NacosServiceRegistry implements ServiceRegistry{
     private static final Logger LOGGER = LoggerFactory.getLogger(NacosServiceRegistry.class);
 
-    private static final String SERVER_ADDR = "127.0.0.1:8848";
-    private static final NamingService NAMING_SERVICE;
+    public final NamingService namingService;
 
-    static {
-        try {
-            NAMING_SERVICE = NamingFactory.createNamingService(SERVER_ADDR);
-        } catch (NacosException e){
-            LOGGER.error("连接到Nacos时发生错误：", e);
-            throw new RpcException(RpcErrorEnum.FAILED_TO_CONNECT_TO_SERVICE_REGISTRY);
-        }
+    public NacosServiceRegistry() {
+        this.namingService = NacosUtil.getNacosNamingService();
     }
 
     @Override
     public void register(String serviceName, InetSocketAddress inetSocketAddress) {
         try {
-            NAMING_SERVICE.registerInstance(serviceName, inetSocketAddress.getHostName(), inetSocketAddress.getPort());
+            NacosUtil.registerService(namingService, serviceName, inetSocketAddress);
         } catch (NacosException e){
             LOGGER.error("注册服务时发生错误：", e);
             throw new RpcException(RpcErrorEnum.REGISTER_SERVICE_FAILED);
         }
-    }
-
-    @Override
-    public InetSocketAddress lookupService(String serviceName) {
-        try {
-            List<Instance> instances = NAMING_SERVICE.getAllInstances(serviceName);
-            Instance instance = instances.get(0);
-            return new InetSocketAddress(instance.getIp(), instance.getPort());
-        } catch (NacosException e){
-            LOGGER.error("获取服务时发生错误：", e);
-        }
-        return null;
     }
 }
