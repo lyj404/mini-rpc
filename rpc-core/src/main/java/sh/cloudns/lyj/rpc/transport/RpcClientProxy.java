@@ -33,11 +33,11 @@ public class RpcClientProxy implements InvocationHandler {
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    public Object invoke(Object proxy, Method method, Object[] args) {
         LOGGER.info("调用方法：{}#{}", method.getDeclaringClass().getName(), method.getName());
         // 创建RPC请求实例
         RpcRequest request = new RpcRequest(UUID.randomUUID().toString(), method.getDeclaringClass().getName(),
-                method.getName(), args, method.getParameterTypes());
+                method.getName(), args, method.getParameterTypes(), false);
         return client.sendRequest(request);
     }
 }

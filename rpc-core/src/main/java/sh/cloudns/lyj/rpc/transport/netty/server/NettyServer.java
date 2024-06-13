@@ -4,27 +4,28 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
-import io.netty.channel.ChannelPipeline;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sh.cloudns.lyj.rpc.codec.CommonDecoder;
+import sh.cloudns.lyj.rpc.codec.CommonEncoder;
+import sh.cloudns.lyj.rpc.enums.RpcErrorEnum;
+import sh.cloudns.lyj.rpc.exception.RpcException;
 import sh.cloudns.lyj.rpc.hook.ShutdownHook;
 import sh.cloudns.lyj.rpc.provider.ServiceProvider;
 import sh.cloudns.lyj.rpc.provider.ServiceProviderImpl;
 import sh.cloudns.lyj.rpc.registry.NacosServiceRegistry;
 import sh.cloudns.lyj.rpc.registry.ServiceRegistry;
-import sh.cloudns.lyj.rpc.transport.RpcServer;
-import sh.cloudns.lyj.rpc.codec.CommonDecoder;
-import sh.cloudns.lyj.rpc.codec.CommonEncoder;
-import sh.cloudns.lyj.rpc.enums.RpcErrorEnum;
-import sh.cloudns.lyj.rpc.exception.RpcException;
 import sh.cloudns.lyj.rpc.serializer.CommonSerializer;
+import sh.cloudns.lyj.rpc.transport.RpcServer;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Date 2024/6/10
@@ -38,14 +39,18 @@ public class NettyServer implements RpcServer {
 
     private final ServiceRegistry serviceRegistry;
     private final ServiceProvider serviceProvider;
-
-    private CommonSerializer serializer;
+    private final CommonSerializer serializer;
 
     public NettyServer(String host, int port) {
+        this(host, port, DEFAULT_SERIALIZER);
+    }
+
+    public NettyServer(String host, int port, Integer serializer){
         this.host = host;
         this.port = port;
         this.serviceRegistry = new NacosServiceRegistry();
         this.serviceProvider = new ServiceProviderImpl();
+        this.serializer = CommonSerializer.getByCode(serializer);
     }
 
     @Override
@@ -56,7 +61,7 @@ public class NettyServer implements RpcServer {
         }
         serviceProvider.addServiceProvider(service, serviceClass);
         serviceRegistry.register(serviceClass.getCanonicalName(), new InetSocketAddress(host, port));
-        start();;
+        start();
     }
 
     @Override
@@ -65,6 +70,7 @@ public class NettyServer implements RpcServer {
             LOGGER.error("未设置序列化器");
             throw new RpcException(RpcErrorEnum.SERIALIZER_NOT_FOUND);
         }
+        ShutdownHook.getShutdownHook().addClearAllHook();
         NioEventLoopGroup bossGroup = new NioEventLoopGroup();
         NioEventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
@@ -82,25 +88,19 @@ public class NettyServer implements RpcServer {
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel channel) {
-                            ChannelPipeline pipeline = channel.pipeline();
-                            pipeline.addLast(new CommonEncoder(serializer));
-                            pipeline.addLast(new CommonDecoder());
-                            pipeline.addLast(new NettyServerHandler());
+                            channel.pipeline().addLast(new IdleStateHandler(30, 0, 0, TimeUnit.SECONDS))
+                                                    .addLast(new CommonEncoder(serializer))
+                                                    .addLast(new CommonDecoder())
+                                                    .addLast(new NettyServerHandler());
                         }
                     });
             ChannelFuture future = bootstrap.bind(host, port).sync();
-            ShutdownHook.getShutdownHook().addClearAllHook();
             future.channel().closeFuture().sync();
         } catch (InterruptedException e){
-            LOGGER.error("启动服务器发生意外：{}", e);
+            LOGGER.error("启动服务器发生意外：", e);
         } finally {
           bossGroup.shutdownGracefully();
           workerGroup.shutdownGracefully();
         }
-    }
-
-    @Override
-    public void setSerializer(CommonSerializer serializer) {
-        this.serializer = serializer;
     }
 }

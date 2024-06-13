@@ -36,7 +36,7 @@ public class NettyClient implements RpcClient {
     private static final Bootstrap BOOTSTRAP;
     private final ServiceDiscovery serviceDiscovery;
     private static final EventLoopGroup GROUP;
-    private CommonSerializer serializer;
+    private final CommonSerializer serializer;
 
     static {
         GROUP = new NioEventLoopGroup();
@@ -46,8 +46,13 @@ public class NettyClient implements RpcClient {
                 .option(ChannelOption.SO_KEEPALIVE, true);
     }
 
-    public NettyClient() {
+    public NettyClient(){
+        this(DEFAULT_SERIALIZER);
+    }
+
+    public NettyClient(Integer serializer) {
         this.serviceDiscovery = new NacosServiceDiscovery();
+        this.serializer = CommonSerializer.getByCode(serializer);
     }
 
     @Override
@@ -59,7 +64,7 @@ public class NettyClient implements RpcClient {
         AtomicReference<Object> result = new AtomicReference<>(null);
         BOOTSTRAP.handler(new ChannelInitializer<SocketChannel>() {
             @Override
-            protected void initChannel(SocketChannel channel) throws Exception {
+            protected void initChannel(SocketChannel channel) {
                 ChannelPipeline pipeline = channel.pipeline();
                 pipeline.addLast(new CommonDecoder())
                         .addLast(new CommonEncoder(serializer))
@@ -76,7 +81,7 @@ public class NettyClient implements RpcClient {
             // 将请求写入通道，并刷新发送缓冲区
             channel.writeAndFlush(rpcRequest).addListener(future1 -> {
                 if (future1.isSuccess()){
-                    LOGGER.info(String.format("客户端发送消息：%s", rpcRequest.toString()));
+                    LOGGER.info(String.format("客户端发送消息：%s", rpcRequest));
                 } else {
                     LOGGER.error("发送消息是产生错误：", future1.cause());
                 }
@@ -88,14 +93,9 @@ public class NettyClient implements RpcClient {
             RpcResponse rpcResponse = channel.attr(key).get();
             result.set(rpcResponse.getData());
         } catch (InterruptedException e){
-            LOGGER.error("发送消息是产生错误：{}", e);
+            LOGGER.error("发送消息是产生错误：", e);
             Thread.currentThread().interrupt();
         }
         return result.get();
-    }
-
-    @Override
-    public void setSerializer(CommonSerializer serializer) {
-        this.serializer = serializer;
     }
 }

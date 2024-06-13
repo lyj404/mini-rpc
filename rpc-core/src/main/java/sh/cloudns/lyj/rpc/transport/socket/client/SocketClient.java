@@ -30,10 +30,15 @@ public class SocketClient implements RpcClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(SocketClient.class);
     private final ServiceDiscovery serviceDiscovery;
 
-    private CommonSerializer serializer;
+    private final CommonSerializer serializer;
 
-    public SocketClient() {
+    public SocketClient(){
+        this(DEFAULT_SERIALIZER);
+    }
+
+    public SocketClient(Integer serializer) {
         this.serviceDiscovery = new NacosServiceDiscovery();
+        this.serializer = CommonSerializer.getByCode(serializer);
     }
 
     @Override
@@ -72,10 +77,5 @@ public class SocketClient implements RpcClient {
             LOGGER.error("调用时发生错误：", e);
             throw new RpcException("服务调用失败：", e);
         }
-    }
-
-    @Override
-    public void setSerializer(CommonSerializer serializer) {
-        this.serializer = serializer;
     }
 }

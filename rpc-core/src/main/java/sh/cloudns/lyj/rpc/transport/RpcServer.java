@@ -8,16 +8,12 @@ import sh.cloudns.lyj.rpc.serializer.CommonSerializer;
  * @Author lyj
  */
 public interface RpcServer {
+    int DEFAULT_SERIALIZER = CommonSerializer.KRYO_SERIALIZER;
+
     /**
      * 启动服务类
      */
     void start();
-
-    /**
-     * 设置序列化器
-     * @param serializer 序列化器
-     */
-    void setSerializer(CommonSerializer serializer);
 
     /**
      * 发布服务

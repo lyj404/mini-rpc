@@ -9,6 +9,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sh.cloudns.lyj.rpc.codec.CommonDecoder;
@@ -42,9 +43,10 @@ public class ChannelProvider {
     public static Channel get(InetSocketAddress inetSocketAddress, CommonSerializer serializer){
         bootstrap.handler(new ChannelInitializer<SocketChannel>() {
             @Override
-            protected void initChannel(SocketChannel channel) throws Exception {
+            protected void initChannel(SocketChannel channel) {
                 // 自定义编解码器 RpcResponse->ByteBuf
                 channel.pipeline().addLast(new CommonEncoder(serializer))
+                        .addLast(new IdleStateHandler(0, 5, 0, TimeUnit.SECONDS))
                         .addLast(new CommonDecoder())
                         .addLast(new NettyClientHandler());
             }

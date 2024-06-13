@@ -1,7 +1,7 @@
 package sh.cloudns.lyj.test;
 
 import sh.cloudns.lyj.rpc.api.HelloService;
-import sh.cloudns.lyj.rpc.serializer.HessianSerializer;
+import sh.cloudns.lyj.rpc.serializer.CommonSerializer;
 import sh.cloudns.lyj.rpc.transport.socket.server.SocketServer;
 
 /**
@@ -12,8 +12,7 @@ import sh.cloudns.lyj.rpc.transport.socket.server.SocketServer;
 public class SocketTestServer {
     public static void main(String[] args) {
         HelloService helloService = new HelloServiceImpl2();
-        SocketServer socketServer = new SocketServer("127.0.0.1", 9999);
-        socketServer.setSerializer(new HessianSerializer());
+        SocketServer socketServer = new SocketServer("127.0.0.1", 9999, CommonSerializer.HESSIAN_SERIALIZER);
         socketServer.publishService(helloService, HelloService.class);
     }
 }
