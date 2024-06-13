@@ -3,11 +3,17 @@ package sh.cloudns.lyj.rpc.transport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sh.cloudns.lyj.rpc.entity.RpcRequest;
+import sh.cloudns.lyj.rpc.entity.RpcResponse;
+import sh.cloudns.lyj.rpc.transport.netty.client.NettyClient;
+import sh.cloudns.lyj.rpc.transport.socket.client.SocketClient;
+import sh.cloudns.lyj.rpc.util.RpcMessageChecker;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 /**
  * @Description RPC客户端动态代理
@@ -32,12 +38,27 @@ public class RpcClientProxy implements InvocationHandler {
         );
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) {
         LOGGER.info("调用方法：{}#{}", method.getDeclaringClass().getName(), method.getName());
         // 创建RPC请求实例
         RpcRequest request = new RpcRequest(UUID.randomUUID().toString(), method.getDeclaringClass().getName(),
                 method.getName(), args, method.getParameterTypes(), false);
-        return client.sendRequest(request);
+        RpcResponse rpcResponse = null;
+        if (client instanceof NettyClient) {
+            CompletableFuture<RpcResponse> completableFuture = (CompletableFuture<RpcResponse>) client.sendRequest(request);
+            try {
+                rpcResponse = completableFuture.get();
+            } catch (InterruptedException | ExecutionException e) {
+                LOGGER.error("方法调用请求发送失败", e);
+                return null;
+            }
+        }
+        if (client instanceof SocketClient) {
+            rpcResponse = (RpcResponse) client.sendRequest(request);
+        }
+        RpcMessageChecker.check(request, rpcResponse);
+        return rpcResponse.getData();
     }
 }

@@ -1,7 +1,5 @@
 package sh.cloudns.lyj.rpc.transport.netty.server;
 
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.IdleState;
@@ -35,9 +33,11 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<RpcRequest> 
                 }
                 LOGGER.info("服务器接收到请求：{}", msg);
                 Object result = requestHandler.handle(msg);
-                ChannelFuture future = ctx.writeAndFlush(RpcResponse.success(result, msg.getRequestId()));
-                // 设置 ChannelFuture 监听器，在操作完成时关闭连接
-                future.addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+                if (ctx.channel().isActive() && ctx.channel().isWritable()) {
+                    ctx.writeAndFlush(RpcResponse.success(result, msg.getRequestId()));
+                } else {
+                    LOGGER.error("通道不可写");
+                }
             } finally {
                 // 释放 RpcRequest 对象所占用的资源
                 ReferenceCountUtil.release(msg);

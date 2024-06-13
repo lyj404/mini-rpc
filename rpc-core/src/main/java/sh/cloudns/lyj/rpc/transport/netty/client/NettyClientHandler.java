@@ -6,12 +6,12 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
-import io.netty.util.AttributeKey;
 import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sh.cloudns.lyj.rpc.entity.RpcRequest;
 import sh.cloudns.lyj.rpc.entity.RpcResponse;
+import sh.cloudns.lyj.rpc.factory.SingletonFactory;
 import sh.cloudns.lyj.rpc.serializer.CommonSerializer;
 
 import java.net.InetSocketAddress;
@@ -25,15 +25,17 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<RpcResponse>
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyClientHandler.class);
 
+    private final UnprocessedRequests unprocessedRequests;
+
+    public NettyClientHandler() {
+        this.unprocessedRequests = SingletonFactory.getInstance(UnprocessedRequests.class);
+    }
+
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RpcResponse msg) {
         try {
             LOGGER.info(String.format("客户端接收到信息： %s", msg));
-            // 创建一个 AttributeKey，用于在 Channel 中存储 RpcResponse 对象
-            AttributeKey<RpcResponse> key = AttributeKey.valueOf("rpcResponse" + msg.getRequestId());
-            // 使用 AttributeKey 将 RpcResponse 对象存储到 Channel 的属性中
-            ctx.channel().attr(key).set(msg);
-            ctx.channel().close();
+            unprocessedRequests.complete(msg);
         } finally {
             ReferenceCountUtil.release(msg);
         }

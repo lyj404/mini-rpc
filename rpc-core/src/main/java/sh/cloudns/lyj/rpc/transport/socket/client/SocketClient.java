@@ -7,6 +7,8 @@ import sh.cloudns.lyj.rpc.entity.RpcResponse;
 import sh.cloudns.lyj.rpc.enums.ResponseCodeEnum;
 import sh.cloudns.lyj.rpc.enums.RpcErrorEnum;
 import sh.cloudns.lyj.rpc.exception.RpcException;
+import sh.cloudns.lyj.rpc.loadbalancer.LoadBalancer;
+import sh.cloudns.lyj.rpc.loadbalancer.RandomLoadBalancer;
 import sh.cloudns.lyj.rpc.registry.NacosServiceDiscovery;
 import sh.cloudns.lyj.rpc.registry.ServiceDiscovery;
 import sh.cloudns.lyj.rpc.serializer.CommonSerializer;
@@ -33,11 +35,19 @@ public class SocketClient implements RpcClient {
     private final CommonSerializer serializer;
 
     public SocketClient(){
-        this(DEFAULT_SERIALIZER);
+        this(DEFAULT_SERIALIZER, new RandomLoadBalancer());
+    }
+
+    public SocketClient(LoadBalancer loadBalancer) {
+        this(DEFAULT_SERIALIZER, loadBalancer);
     }
 
     public SocketClient(Integer serializer) {
-        this.serviceDiscovery = new NacosServiceDiscovery();
+        this(serializer, new RandomLoadBalancer());
+    }
+
+    public SocketClient(Integer serializer, LoadBalancer loadBalancer) {
+        this.serviceDiscovery = new NacosServiceDiscovery(loadBalancer);
         this.serializer = CommonSerializer.getByCode(serializer);
     }
 
@@ -72,7 +82,7 @@ public class SocketClient implements RpcClient {
             }
             RpcMessageChecker.check(request, response);
             // 返回响应结果
-            return response.getData();
+            return response;
         } catch (IOException e){
             LOGGER.error("调用时发生错误：", e);
             throw new RpcException("服务调用失败：", e);

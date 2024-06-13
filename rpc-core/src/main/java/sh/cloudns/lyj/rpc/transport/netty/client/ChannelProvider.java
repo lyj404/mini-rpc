@@ -14,13 +14,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sh.cloudns.lyj.rpc.codec.CommonDecoder;
 import sh.cloudns.lyj.rpc.codec.CommonEncoder;
-import sh.cloudns.lyj.rpc.enums.RpcErrorEnum;
-import sh.cloudns.lyj.rpc.exception.RpcException;
 import sh.cloudns.lyj.rpc.serializer.CommonSerializer;
 
 import java.net.InetSocketAddress;
-import java.util.Date;
-import java.util.concurrent.CountDownLatch;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -32,15 +32,19 @@ public class ChannelProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(ChannelProvider.class);
     private static EventLoopGroup eventLoopGroup;
     private static Bootstrap bootstrap = initializeBootstrap();
+    private static Map<String, Channel> channels = new ConcurrentHashMap<>();
 
-
-    /**
-     * 重试次数
-     */
-    private static final int MAX_RETRY_COUNT = 5;
-    private static Channel channel;
 
     public static Channel get(InetSocketAddress inetSocketAddress, CommonSerializer serializer){
+        String key = inetSocketAddress.toString() + serializer.getCode();
+        if (channels.containsKey(key)) {
+            Channel channel = channels.get(key);
+            if (channel == null && channel.isActive()) {
+                return channel;
+            } else {
+                channels.remove(key);
+            }
+        }
         bootstrap.handler(new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(SocketChannel channel) {
@@ -51,47 +55,29 @@ public class ChannelProvider {
                         .addLast(new NettyClientHandler());
             }
         });
-        // 创建一个 CountDownLatch 计数器，用于等待连接完成
-        CountDownLatch countDownLatch = new CountDownLatch(1);
+        Channel channel = null;
         try{
             // 尝试连接到服务器
-            connect(bootstrap, inetSocketAddress, countDownLatch);
-            // 等待连接完成或发生异常
-            countDownLatch.await();
-        } catch(InterruptedException e){
+            channel = connect(bootstrap, inetSocketAddress);
+        } catch (ExecutionException | InterruptedException e) {
             LOGGER.error("获取channel时发生错误：", e);
+            return null;
         }
+        channels.put(key, channel);
         return channel;
     }
 
-    private static void connect(Bootstrap bootstrap, InetSocketAddress inetSocketAddress, CountDownLatch countDownLatch){
-        connect(bootstrap, inetSocketAddress, MAX_RETRY_COUNT, countDownLatch);
-    }
-
-    private static void connect(Bootstrap bootstrap, InetSocketAddress inetSocketAddress, int retry, CountDownLatch countDownLatch){
+    private static Channel connect(Bootstrap bootstrap, InetSocketAddress inetSocketAddress) throws ExecutionException, InterruptedException {
+        CompletableFuture<Channel> completableFuture = new CompletableFuture<>();
         bootstrap.connect(inetSocketAddress).addListener((ChannelFutureListener) future -> {
             if (future.isSuccess()) {
                 LOGGER.info("客户端连接成功");
-                channel = future.channel();
-                countDownLatch.countDown();
-                return;
+                completableFuture.complete(future.channel());
+            } else {
+                throw new IllegalStateException();
             }
-            if (retry == 0){
-                LOGGER.error("客户端连接失败：重试次数已用完，放弃连接!");
-                countDownLatch.countDown();
-                throw new RpcException(RpcErrorEnum.CLIENT_CONNECT_SERVER_FAILURE);
-            }
-            // 第几次重连
-            int order = (MAX_RETRY_COUNT - retry) + 1;
-            // 本次重连的间隔
-            // 第 1 次重试 (order = 1): delay = 1 << 1 = 2 秒
-            // 第 2 次重试 (order = 2): delay = 1 << 2 = 4 秒
-            // 第 3 次重试 (order = 3): delay = 1 << 3 = 8 秒
-            int delay = 1 << order;
-            LOGGER.error("{}: 连接失败，第{}次重连...", new Date(), order);
-            bootstrap.config().group().schedule(() -> connect(bootstrap,inetSocketAddress, retry -1, countDownLatch),
-                    delay, TimeUnit.SECONDS);
         });
+        return completableFuture.get();
     }
 
     /**
