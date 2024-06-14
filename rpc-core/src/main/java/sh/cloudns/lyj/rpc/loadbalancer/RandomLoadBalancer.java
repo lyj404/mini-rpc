@@ -7,7 +7,7 @@ import java.util.random.RandomGenerator;
 import java.util.random.RandomGeneratorFactory;
 
 /**
- * @author: liyj
+ * @author: lyj
  * @date: 2024/6/13 17:33
  */
 public class RandomLoadBalancer implements LoadBalancer {

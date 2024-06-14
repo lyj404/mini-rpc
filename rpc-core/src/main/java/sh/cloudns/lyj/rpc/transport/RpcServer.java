@@ -18,8 +18,8 @@ public interface RpcServer {
     /**
      * 发布服务
      * @param service 服务
-     * @param serviceClass 服务的类
+     * @param serviceName 服务的类
      * @param <T> 泛型
      */
-    <T> void publishService(T service, Class<T> serviceClass);
+    <T> void publishService(T service, String serviceName);
 }

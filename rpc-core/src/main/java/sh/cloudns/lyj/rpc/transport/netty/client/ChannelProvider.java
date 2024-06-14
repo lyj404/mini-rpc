@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 public class ChannelProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(ChannelProvider.class);
     private static EventLoopGroup eventLoopGroup;
-    private static Bootstrap bootstrap = initializeBootstrap();
+    private static final Bootstrap bootstrap = initializeBootstrap();
     private static Map<String, Channel> channels = new ConcurrentHashMap<>();
 
 
@@ -39,9 +39,10 @@ public class ChannelProvider {
         String key = inetSocketAddress.toString() + serializer.getCode();
         if (channels.containsKey(key)) {
             Channel channel = channels.get(key);
-            if (channel == null && channel.isActive()) {
+            if (channels != null && channel.isActive()) {
                 return channel;
             } else {
+                assert channels != null;
                 channels.remove(key);
             }
         }
@@ -55,7 +56,7 @@ public class ChannelProvider {
                         .addLast(new NettyClientHandler());
             }
         });
-        Channel channel = null;
+        Channel channel;
         try{
             // 尝试连接到服务器
             channel = connect(bootstrap, inetSocketAddress);
@@ -86,8 +87,8 @@ public class ChannelProvider {
      */
     private static Bootstrap initializeBootstrap() {
         eventLoopGroup = new NioEventLoopGroup();
-        Bootstrap bootstrap1 = new Bootstrap();
-        bootstrap1.group(eventLoopGroup)
+        Bootstrap bootstrap = new Bootstrap();
+        bootstrap.group(eventLoopGroup)
                 .channel(NioSocketChannel.class)
                 // 设置连接超时的时间
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000)
@@ -95,6 +96,6 @@ public class ChannelProvider {
                 .option(ChannelOption.SO_KEEPALIVE, true)
                 // TCP默认开启了 Nagle 算法，该算法的作用是尽可能的发送大数据快，减少网络传输。TCP_NODELAY 参数的作用就是控制是否启用 Nagle 算法
                 .option(ChannelOption.TCP_NODELAY, true);
-        return bootstrap1;
+        return bootstrap;
     }
 }

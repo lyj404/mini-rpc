@@ -6,13 +6,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * @author: liyj
+ * @author: lyj
  * @date: 2024/6/13 17:13
  */
 public class UnprocessedRequests {
-    private static ConcurrentHashMap<String, CompletableFuture<RpcResponse>> unprocessedResponseFutures = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, CompletableFuture<RpcResponse<?>>> unprocessedResponseFutures = new ConcurrentHashMap<>();
 
-    public void put(String requestId, CompletableFuture<RpcResponse> future) {
+    public void put(String requestId, CompletableFuture<RpcResponse<?>> future) {
         unprocessedResponseFutures.put(requestId, future);
     }
 
@@ -20,8 +20,8 @@ public class UnprocessedRequests {
         unprocessedResponseFutures.remove(requestId);
     }
 
-    public void complete(RpcResponse rpcResponse) {
-        CompletableFuture<RpcResponse> future = unprocessedResponseFutures.remove(rpcResponse.getRequestId());
+    public void complete(RpcResponse<?> rpcResponse) {
+        CompletableFuture<RpcResponse<?>> future = unprocessedResponseFutures.remove(rpcResponse.getRequestId());
         if (future != null) {
             future.complete(rpcResponse);
         } else {

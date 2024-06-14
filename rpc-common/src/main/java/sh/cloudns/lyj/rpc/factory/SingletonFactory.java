@@ -1,6 +1,5 @@
 package sh.cloudns.lyj.rpc.factory;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,7 +9,7 @@ import java.util.Map;
  * @Author lyj
  */
 public class SingletonFactory {
-    private static Map<Class, Object> objectMap = new HashMap<>();
+    private static final Map<Class<?>, Object> objectMap = new HashMap<>();
 
     private SingletonFactory(){}
 
@@ -21,8 +20,7 @@ public class SingletonFactory {
                 try {
                     instance = clazz.getDeclaredConstructor().newInstance();
                     objectMap.put(clazz, instance);
-                } catch (IllegalAccessException | InstantiationException | NoSuchMethodException |
-                         InvocationTargetException e){
+                } catch (Exception e) {
                     throw new RuntimeException(e.getMessage(), e);
                 }
             }

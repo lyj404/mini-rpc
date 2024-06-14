@@ -29,12 +29,8 @@ import java.util.concurrent.CompletableFuture;
  */
 public class NettyClient implements RpcClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyClient.class);
-
     private static final Bootstrap BOOTSTRAP;
-    private final ServiceDiscovery serviceDiscovery;
     private static final EventLoopGroup GROUP;
-    private final CommonSerializer serializer;
-    private final UnprocessedRequests unprocessedRequests;
 
     static {
         GROUP = new NioEventLoopGroup();
@@ -42,6 +38,10 @@ public class NettyClient implements RpcClient {
         BOOTSTRAP.group(GROUP)
                 .channel(NioSocketChannel.class);
     }
+
+    private final ServiceDiscovery serviceDiscovery;
+    private final CommonSerializer serializer;
+    private final UnprocessedRequests unprocessedRequests;
 
     public NettyClient(){
         this(DEFAULT_SERIALIZER, new RandomLoadBalancer());
@@ -62,15 +62,16 @@ public class NettyClient implements RpcClient {
     }
 
     @Override
-    public CompletableFuture<RpcResponse> sendRequest(RpcRequest rpcRequest) {
+    public CompletableFuture<RpcResponse<?>> sendRequest(RpcRequest rpcRequest) {
         if (serializer == null) {
             LOGGER.error("未设置序列化器");
             throw new RpcException(RpcErrorEnum.SERIALIZER_NOT_FOUND);
         }
-        CompletableFuture<RpcResponse> resultFuture = new CompletableFuture<>();
+        CompletableFuture<RpcResponse<?>> resultFuture = new CompletableFuture<>();
         try {
             InetSocketAddress inetSocketAddress = serviceDiscovery.lookupService(rpcRequest.getInterfaceName());
             Channel channel = ChannelProvider.get(inetSocketAddress, serializer);
+            assert channel != null;
             if (!channel.isActive()) {
                 GROUP.shutdownGracefully();
                 return null;

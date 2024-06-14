@@ -19,7 +19,7 @@ import sh.cloudns.lyj.rpc.handler.RequestHandler;
  */
 public class NettyServerHandler extends SimpleChannelInboundHandler<RpcRequest> {
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyServerHandler.class);
-    private RequestHandler requestHandler;
+    private final RequestHandler requestHandler;
 
     public NettyServerHandler() {
         this.requestHandler = SingletonFactory.getInstance(RequestHandler.class);
