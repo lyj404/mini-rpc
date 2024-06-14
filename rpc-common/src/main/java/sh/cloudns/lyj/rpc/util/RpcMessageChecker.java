@@ -20,15 +20,18 @@ public class RpcMessageChecker {
     private RpcMessageChecker(){}
 
     public static void check(RpcRequest rpcRequest, RpcResponse rpcResponse){
+        // 判断响应是否为空
         if (rpcResponse == null) {
             LOGGER.error("调用服务失败, serviceName: {}", rpcRequest.getInterfaceName());
             throw new RpcException(RpcErrorEnum.SERVICE_INVOCATION_FAILURE, INTERFACE_NAME + "：" +
                     rpcRequest.getInterfaceName());
         }
+        // 判断请求和响应的ID是否相等
         if (!rpcRequest.getRequestId().equals(rpcResponse.getRequestId())) {
             throw new RpcException(RpcErrorEnum.RESPONSE_NOT_MATCH, INTERFACE_NAME + ":" +
                     rpcRequest.getInterfaceName());
         }
+        // 判断响应状态是否是成功状态
         if (rpcResponse.getStatusCode() == null || !rpcResponse.getStatusCode().equals(ResponseCodeEnum.SUCCESS.getCode())){
             LOGGER.error("调用服务失败, serviceName: {}, RpcResponse: {}", rpcRequest.getInterfaceName(), rpcResponse);
             throw new RpcException(RpcErrorEnum.SERVICE_INVOCATION_FAILURE, INTERFACE_NAME + "：" +

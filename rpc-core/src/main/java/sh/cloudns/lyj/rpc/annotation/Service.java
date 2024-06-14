@@ -7,8 +7,8 @@ import java.lang.annotation.Target;
 
 /**
  * @Description 表示服务提供类，用于远程接口的实现类
- * @author: lyj
- * @date: 2024/6/14 11:50
+ * @Author: lyj
+ * @Date: 2024/6/14 11:50
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

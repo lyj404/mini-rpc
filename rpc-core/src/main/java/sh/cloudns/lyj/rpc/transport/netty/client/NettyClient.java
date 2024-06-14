@@ -87,9 +87,7 @@ public class NettyClient implements RpcClient {
                     LOGGER.error("发送消息是产生错误：", future1.cause());
                 }
             });
-            // 等待通道关闭
-            channel.closeFuture().sync();
-        } catch (InterruptedException e){
+        } catch (Exception e){
             unprocessedRequests.remove(rpcRequest.getRequestId());
             LOGGER.error("发送消息是产生错误：", e);
             Thread.currentThread().interrupt();

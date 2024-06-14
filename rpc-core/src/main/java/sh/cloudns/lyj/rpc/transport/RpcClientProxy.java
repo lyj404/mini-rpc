@@ -42,12 +42,12 @@ public class RpcClientProxy implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args) {
         LOGGER.info("调用方法：{}#{}", method.getDeclaringClass().getName(), method.getName());
         // 创建RPC请求实例
-        RpcRequest request = new RpcRequest(UUID.randomUUID().toString(), method.getDeclaringClass().getName(),
+        RpcRequest rpcRequest = new RpcRequest(UUID.randomUUID().toString(), method.getDeclaringClass().getName(),
                 method.getName(), args, method.getParameterTypes(), false);
         RpcResponse<?> rpcResponse = null;
         if (client instanceof NettyClient) {
             try {
-                CompletableFuture<RpcResponse<?>> completableFuture = (CompletableFuture<RpcResponse<?>>) client.sendRequest(request);
+                CompletableFuture<RpcResponse<?>> completableFuture = (CompletableFuture<RpcResponse<?>>) client.sendRequest(rpcRequest);
                 rpcResponse = completableFuture.get();
             } catch (Exception e) {
                 LOGGER.error("方法调用请求发送失败", e);
@@ -55,9 +55,9 @@ public class RpcClientProxy implements InvocationHandler {
             }
         }
         if (client instanceof SocketClient) {
-            rpcResponse = (RpcResponse<?>) client.sendRequest(request);
+            rpcResponse = (RpcResponse<?>) client.sendRequest(rpcRequest);
         }
-        RpcMessageChecker.check(request, rpcResponse);
+        RpcMessageChecker.check(rpcRequest, rpcResponse);
         assert rpcResponse != null;
         return rpcResponse.getData();
     }

@@ -13,17 +13,29 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 /**
- * @author: lyj
- * @date: 2024/6/14 11:34
+ * @Description 用于在运行时扫描和加载指定包名下的所有类
+ * @Author: lyj
+ * @Date: 2024/6/14 11:34
  */
 public class ReflectUtil {
+
+    /**
+     * 获取调用者类名
+     * @return 调用者类名的字符串表示
+     */
     public static String getStackTrace() {
         StackTraceElement[] stack = new Throwable().getStackTrace();
         return stack[stack.length - 1].getClassName();
     }
 
+    /**
+     * 根据给定的包名，扫描并返回该包下的所有类。
+     * @param packageName 要扫描的包名。
+     * @return 一个包含所有找到的类的 Set。
+     */
     public static Set<Class<?>> getClasses(String packageName) {
         Set<Class<?>> classes = new LinkedHashSet<>();
+        // 是否递归扫描子包
         boolean recursive = true;
         String packageDirName = packageName.replace('.', '/');
         Enumeration<URL> dirs;
@@ -96,6 +108,13 @@ public class ReflectUtil {
         return classes;
     }
 
+    /**
+     * 通过文件系统递归查找并添加指定包下的所有类。
+     * @param packageName 包名。
+     * @param packagePath 包的物理路径。
+     * @param recursive 是否递归扫描子目录。
+     * @param classes 用于存储找到的类的集合。
+     */
     public static void findAndAddClassesInPackageByFile(String packageName, String packagePath, final boolean recursive, Set<Class<?>> classes) {
         // 获取此包的目录，建立一个File
         File dir = new File(packagePath);
