@@ -3,6 +3,8 @@ package sh.cloudns.lyj.rpc.codec;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
+import sh.cloudns.lyj.rpc.compress.Compress;
+import sh.cloudns.lyj.rpc.compress.GzipCompress;
 import sh.cloudns.lyj.rpc.entity.RpcRequest;
 import sh.cloudns.lyj.rpc.enums.PackageTypeEnum;
 import sh.cloudns.lyj.rpc.serializer.CommonSerializer;
@@ -40,6 +42,9 @@ public class CommonEncoder extends MessageToByteEncoder {
         out.writeInt(serializer.getCode());
         // 对消息进行序列化
         byte[] bytes = serializer.serialize(msg);
+        // 压缩消息
+        Compress compress = new GzipCompress();
+        bytes = compress.compress(bytes);
         // 写入消息长度
         out.writeInt(bytes.length);
         // 写入消息

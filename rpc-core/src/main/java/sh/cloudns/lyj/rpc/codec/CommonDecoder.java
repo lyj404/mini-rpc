@@ -5,6 +5,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ReplayingDecoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sh.cloudns.lyj.rpc.compress.Compress;
+import sh.cloudns.lyj.rpc.compress.GzipCompress;
 import sh.cloudns.lyj.rpc.entity.RpcRequest;
 import sh.cloudns.lyj.rpc.entity.RpcResponse;
 import sh.cloudns.lyj.rpc.enums.PackageTypeEnum;
@@ -63,6 +65,9 @@ public class CommonDecoder extends ReplayingDecoder {
         byte[] bytes = new byte[length];
         // 从 ByteBuf 中读取字节数据到数组
         in.readBytes(bytes);
+        // 使用GZIP压缩算法进行解压缩
+        Compress compress = new GzipCompress();
+        bytes = compress.decompress(bytes);
         // 使用序列化器将字节数组反序列化成对象，并添加到输出列表中
         Object obj = serializer.deserialize(bytes, packageClass);
         out.add(obj);
