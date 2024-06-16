@@ -22,9 +22,9 @@ import java.net.Socket;
 public class SocketRequestHandlerThread implements Runnable{
     private static final Logger LOGGER = LoggerFactory.getLogger(SocketRequestHandlerThread.class);
 
-    private Socket socket;
-    private RequestHandler requestHandler;
-    private CommonSerializer serializer;
+    private final Socket socket;
+    private final RequestHandler requestHandler;
+    private final CommonSerializer serializer;
 
     public SocketRequestHandlerThread(Socket socket, RequestHandler requestHandler, CommonSerializer serializer) {
         this.socket = socket;
@@ -32,6 +32,9 @@ public class SocketRequestHandlerThread implements Runnable{
         this.serializer = serializer;
     }
 
+    /**
+     * 实现 Runnable 接口的 run 方法，处理接收到的请求
+     */
     @Override
     public void run() {
         try (InputStream inputStream = socket.getInputStream();
@@ -40,7 +43,9 @@ public class SocketRequestHandlerThread implements Runnable{
             RpcRequest rpcRequest = (RpcRequest) ObjectReader.readObject(inputStream);
             // 获取调用的接口名
             Object result = requestHandler.handle(rpcRequest);
+            // 创建 RpcResponse 对象，包含处理结果和请求 ID
             RpcResponse<Object> response = RpcResponse.success(result,rpcRequest.getRequestId());
+            // 序列化 RpcResponse 对象并写入输出流，发送回客户端
             ObjectWriter.writeObject(outputStream, response, serializer);
         } catch (IOException e){
             LOGGER.error("调用或发送时有错误发生:", e);

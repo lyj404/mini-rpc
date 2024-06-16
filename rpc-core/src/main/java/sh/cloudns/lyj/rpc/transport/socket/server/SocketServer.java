@@ -51,6 +51,7 @@ public class SocketServer extends AbstractRpcServer {
             // 循环等待客户端连接
             while ((socket = serverSocket.accept()) != null){
                 logger.info("消费者连接：{}:{}", socket.getInetAddress(), socket.getPort());
+                // 使用线程池来处理RPC请求
                 this.threadPool.execute(new SocketRequestHandlerThread(socket, requestHandler, serializer));
             }
             threadPool.shutdown();

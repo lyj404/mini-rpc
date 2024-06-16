@@ -80,6 +80,7 @@ public class SocketClient implements RpcClient {
                 LOGGER.error("服务调用失败, service：{}, response: {}",request.getInterfaceName(), response);
                 throw new RpcException(RpcErrorEnum.SERVICE_INVOCATION_FAILURE, " service:" + request.getInterfaceName());
             }
+            // 检查RPC的请求和响应
             RpcMessageChecker.check(request, response);
             // 返回响应结果
             return response;

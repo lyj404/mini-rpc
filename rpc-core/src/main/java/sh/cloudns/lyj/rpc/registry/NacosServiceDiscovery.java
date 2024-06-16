@@ -24,18 +24,28 @@ public class NacosServiceDiscovery implements ServiceDiscovery{
     private final LoadBalancer loadBalancer;
 
     public NacosServiceDiscovery(LoadBalancer loadBalancer) {
+        // 使用 Objects.requireNonNullElseGet 确保负载均衡器不为 null，如果为 null，则创建一个新的 RandomLoadBalancer 实例
         this.loadBalancer = Objects.requireNonNullElseGet(loadBalancer, RandomLoadBalancer::new);
     }
 
+    /**
+     * 根据服务名称查询服务实例的地址信息。
+     * @param serviceName 服务名称。
+     * @return 返回服务实例的 InetSocketAddress。
+     */
     @Override
     public InetSocketAddress lookupService(String serviceName) {
         try {
+            // 从 Nacos 获取所有服务实例
             List<Instance> instances = NacosUtil.getAllInstance(serviceName);
+            // 如果没有找到服务实例，记录错误日志并抛出异常
             if (instances.isEmpty()) {
                 LOGGER.error("找不到对应的服务：" + serviceName);
                 throw new RpcException(RpcErrorEnum.SERVICE_NOT_FOUND);
             }
+            // 使用负载均衡器从服务实例中选择一个实例
             Instance instance = loadBalancer.select(instances);
+            // 返回选中实例的地址和端口信息
             return new InetSocketAddress(instance.getIp(), instance.getPort());
         } catch (NacosException e){
             LOGGER.error("获取服务时发生错误: ", e);

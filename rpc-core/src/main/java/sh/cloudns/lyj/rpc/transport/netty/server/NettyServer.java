@@ -41,13 +41,20 @@ public class NettyServer extends AbstractRpcServer {
         scanServices();
     }
 
+    /**
+     * 重写 AbstractRpcServer 的 start 方法，启动服务器
+     */
     @Override
     public void start() {
+        // 添加关闭钩子
         ShutdownHook.getShutdownHook().addClearAllHook();
+        // 创建 bossGroup 和 workerGroup，用于接收连接和处理网络事件
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
+            // 创建服务器启动对象
             ServerBootstrap serverBootstrap = new ServerBootstrap();
+            // 配置服务器启动参数
             serverBootstrap.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
                     // 添加日志处理器
@@ -61,19 +68,26 @@ public class NettyServer extends AbstractRpcServer {
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel channel) {
+                            // 添加空闲状态处理器
                             channel.pipeline().addLast(new IdleStateHandler(30, 0, 0, TimeUnit.SECONDS))
+                                                    // 添加序列化处理器
                                                     .addLast(new CommonEncoder(serializer))
+                                                    // 添加反序列化处理器
                                                     .addLast(new CommonDecoder())
+                                                    // 添加 Netty 服务器业务处理器
                                                     .addLast(new NettyServerHandler());
                         }
                     });
+            // 绑定主机和端口，并同步等待直到绑定完成
             ChannelFuture future = serverBootstrap.bind(host, port).sync();
+            // 等待直到服务器 socket 关闭
             future.channel().closeFuture().sync();
         } catch (InterruptedException e){
             logger.error("启动服务器发生意外：", e);
         } finally {
-          bossGroup.shutdownGracefully();
-          workerGroup.shutdownGracefully();
+            // 优雅关闭 bossGroup 和 workerGroup
+            bossGroup.shutdownGracefully();
+            workerGroup.shutdownGracefully();
         }
     }
 }

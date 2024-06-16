@@ -4,7 +4,7 @@ import sh.cloudns.lyj.rpc.entity.RpcRequest;
 import sh.cloudns.lyj.rpc.serializer.CommonSerializer;
 
 /**
- * @Description 客户端通用接口
+ * @Description RPC客户端通用接口
  * @Date 2024/6/10
  * @Author lyj
  */

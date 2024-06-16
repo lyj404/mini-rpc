@@ -3,7 +3,7 @@ package sh.cloudns.lyj.rpc.transport;
 import sh.cloudns.lyj.rpc.serializer.CommonSerializer;
 
 /**
- * @Description 服务类通用接口
+ * @Description RPC服务类通用接口
  * @Date 2024/6/10
  * @Author lyj
  */

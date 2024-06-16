@@ -29,7 +29,9 @@ import java.util.concurrent.CompletableFuture;
  */
 public class NettyClient implements RpcClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyClient.class);
+
     private static final Bootstrap BOOTSTRAP;
+
     private static final EventLoopGroup GROUP;
 
     static {
@@ -61,33 +63,44 @@ public class NettyClient implements RpcClient {
         this.unprocessedRequests = SingletonFactory.getInstance(UnprocessedRequests.class);
     }
 
+    /**
+     * 用于发送 Rpc 请求并返回响应的 CompletableFuture
+     * @param rpcRequest 请求实体类
+     * @return CompletableFuture
+     */
     @Override
     public CompletableFuture<RpcResponse<?>> sendRequest(RpcRequest rpcRequest) {
         if (serializer == null) {
             LOGGER.error("未设置序列化器");
             throw new RpcException(RpcErrorEnum.SERIALIZER_NOT_FOUND);
         }
+        // 创建一个 CompletableFuture，用于异步处理 Rpc 响应
         CompletableFuture<RpcResponse<?>> resultFuture = new CompletableFuture<>();
         try {
+            // 使用服务发现查询服务实例的地址信息
             InetSocketAddress inetSocketAddress = serviceDiscovery.lookupService(rpcRequest.getInterfaceName());
+            // 获取 Channel 对象，用于发送 Rpc 请求
             Channel channel = ChannelProvider.get(inetSocketAddress, serializer);
             assert channel != null;
             if (!channel.isActive()) {
                 GROUP.shutdownGracefully();
                 return null;
             }
+            // 将请求 ID 和 CompletableFuture 添加到未处理请求的管理器中
             unprocessedRequests.put(rpcRequest.getRequestId(), resultFuture);
             // 将请求写入通道，并刷新发送缓冲区
             channel.writeAndFlush(rpcRequest).addListener((ChannelFutureListener) future1 -> {
                 if (future1.isSuccess()){
                     LOGGER.info(String.format("客户端发送消息：%s", rpcRequest));
                 } else {
+                    // 如果发送失败，关闭 Channel 并完成异常
                     future1.channel().close();
                     resultFuture.completeExceptionally(future1.cause());
                     LOGGER.error("发送消息是产生错误：", future1.cause());
                 }
             });
         } catch (Exception e){
+            // 如果发生异常，从未处理请求的管理器中移除请求 ID
             unprocessedRequests.remove(rpcRequest.getRequestId());
             LOGGER.error("发送消息是产生错误：", e);
             Thread.currentThread().interrupt();

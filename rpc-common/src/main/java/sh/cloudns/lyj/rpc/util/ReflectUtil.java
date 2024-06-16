@@ -20,35 +20,40 @@ import java.util.jar.JarFile;
 public class ReflectUtil {
 
     /**
-     * 获取调用者类名
-     * @return 调用者类名的字符串表示
+     * 用于获取当前调用者的方法所在的类名。
+     * 该方法通过创建一个Throwable实例来访问调用栈，然后返回调用栈最后一个元素的类名。
+     * @return 返回调用者类名的字符串表示。
      */
     public static String getStackTrace() {
-        StackTraceElement[] stack = new Throwable().getStackTrace();
-        return stack[stack.length - 1].getClassName();
+        StackTraceElement[] stack = new Throwable().getStackTrace(); // 获取当前的调用栈
+        return stack[stack.length - 1].getClassName(); // 返回调用栈最后一个元素的类名
     }
 
     /**
-     * 根据给定的包名，扫描并返回该包下的所有类。
+     * 用于扫描并返回指定包名下的所有类。
      * @param packageName 要扫描的包名。
-     * @return 一个包含所有找到的类的 Set。
+     * @return 返回一个包含所有找到的类的Set集合。
      */
     public static Set<Class<?>> getClasses(String packageName) {
+        // 创建一个LinkedHashSet用于存储类
         Set<Class<?>> classes = new LinkedHashSet<>();
         // 是否递归扫描子包
         boolean recursive = true;
+        // 将点分隔的包名转换为路径
         String packageDirName = packageName.replace('.', '/');
+        // 用于存储获取到的资源URL列表
         Enumeration<URL> dirs;
         try {
+            // 获取包名对应的资源URL列表
             dirs = Thread.currentThread()
                     .getContextClassLoader()
                     .getResources(packageDirName);
             while (dirs.hasMoreElements()) {
-                // 获取下一个元素
+                // 获取下一个资源URL
                 URL url = dirs.nextElement();
-                // 得到协议的名称
+                // 获取URL的协议类型
                 String protocol = url.getProtocol();
-                // 如果是以文件的形式保存在服务器上
+                // 如果资源是文件系统上的文件或目录
                 if ("file".equals(protocol)) {
                     // 获取包的物理路径
                     String filePath = URLDecoder.decode(url.getFile(), StandardCharsets.UTF_8);
@@ -62,11 +67,12 @@ public class ReflectUtil {
                         // 获取jar
                         jar = ((JarURLConnection) url.openConnection())
                                 .getJarFile();
-                        // 从此jar包 得到一个枚举类
+                        // 获取Jar包中所有条目的枚举
                         Enumeration<JarEntry> entries = jar.entries();
                         while (entries.hasMoreElements()) {
                             // 获取jar里的一个实体 可以是目录 和一些jar包里的其他文件 如META-INF等文件
                             JarEntry entry = entries.nextElement();
+                            // 获取条目的名称
                             String name = entry.getName();
                             // 如果是以/开头
                             if (name.charAt(0) == '/') {
@@ -126,8 +132,9 @@ public class ReflectUtil {
         // 自定义过滤规则 如果可以循环(包含子目录) 或则是以.class结尾的文件(编译好的java类文件)
         File[] dirfiles = dir.listFiles(file -> (recursive && file.isDirectory())
                 || (file.getName().endsWith(".class")));
-        // 循环所有文件
+        // 确保文件数组不为null
         assert dirfiles != null;
+        // 循环所有文件
         for (var file : dirfiles) {
             // 如果是目录，则继续扫描
             if (file.isDirectory()) {
