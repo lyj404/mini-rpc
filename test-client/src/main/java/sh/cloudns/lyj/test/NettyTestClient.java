@@ -1,6 +1,5 @@
 package sh.cloudns.lyj.test;
 
-import sh.cloudns.lyj.rpc.api.ByeService;
 import sh.cloudns.lyj.rpc.api.HelloObject;
 import sh.cloudns.lyj.rpc.api.HelloService;
 import sh.cloudns.lyj.rpc.serializer.CommonSerializer;
@@ -20,7 +19,5 @@ public class NettyTestClient {
         HelloObject object = new HelloObject(12, "this is a message");
         String res = helloService.hello(object);
         System.out.println(res);
-        ByeService byeService = rpcClientProxy.getProxy(ByeService.class);
-        System.out.println(byeService.bye("Netty"));
     }
 }
