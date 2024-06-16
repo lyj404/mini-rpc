@@ -6,12 +6,14 @@ import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.pojo.Instance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sh.cloudns.lyj.rpc.enums.ConfigEnum;
 import sh.cloudns.lyj.rpc.enums.RpcErrorEnum;
 import sh.cloudns.lyj.rpc.exception.RpcException;
 
 import java.net.InetSocketAddress;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -41,7 +43,7 @@ public class NacosUtil {
     /**
      * Nacos 服务器地址
      */
-    private static final String SERVER_ADDR = "127.0.0.1:8848";
+    private static final String DEFAULT_SERVER_ADDR = "127.0.0.1:8848";
 
     static {
         // 初始化 Nacos 命名服务实例
@@ -54,8 +56,11 @@ public class NacosUtil {
      */
     public static NamingService getNacosNamingService(){
         try {
+            // 从配置文件中加载 Nacos 服务器地址
+            Properties properties = PropertiesFileUtil.loadProperties(ConfigEnum.CONFIG_PATH.getValue());
+            String addr = properties != null ? properties.getProperty(ConfigEnum.NACOS_ADDRESS.getValue()) : DEFAULT_SERVER_ADDR;
             // 使用 Nacos 提供的工厂方法创建并返回 NamingService 实例
-            return NamingFactory.createNamingService(SERVER_ADDR);
+            return NamingFactory.createNamingService(addr);
         } catch (NacosException e){
             LOGGER.error("连接nacos时发生错误：", e);
             throw new RpcException(RpcErrorEnum.FAILED_TO_CONNECT_TO_SERVICE_REGISTRY);
