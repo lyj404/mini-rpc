@@ -4,7 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 import sh.cloudns.lyj.rpc.compress.Compress;
-import sh.cloudns.lyj.rpc.compress.GzipCompress;
+import sh.cloudns.lyj.rpc.compress.CompressFactory;
 import sh.cloudns.lyj.rpc.entity.RpcRequest;
 import sh.cloudns.lyj.rpc.enums.PackageTypeEnum;
 import sh.cloudns.lyj.rpc.serializer.CommonSerializer;
@@ -23,13 +23,15 @@ public class CommonEncoder extends MessageToByteEncoder {
 
     private final CommonSerializer serializer;
 
+    private final Compress compress = CompressFactory.getCompressInstance(0);
+
     public CommonEncoder(CommonSerializer serializer) {
         this.serializer = serializer;
     }
 
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, Object msg, ByteBuf out) throws Exception {
+    protected void encode(ChannelHandlerContext ctx, Object msg, ByteBuf out){
         // 写入魔数
         out.writeInt(MAGIC_NUMBER);
         if (msg instanceof RpcRequest){
@@ -42,8 +44,7 @@ public class CommonEncoder extends MessageToByteEncoder {
         out.writeInt(serializer.getCode());
         // 对消息进行序列化
         byte[] bytes = serializer.serialize(msg);
-        // 压缩消息
-        Compress compress = new GzipCompress();
+        // 使用默认压缩器压缩消息
         bytes = compress.compress(bytes);
         // 写入消息长度
         out.writeInt(bytes.length);

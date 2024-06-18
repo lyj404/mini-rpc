@@ -23,7 +23,7 @@ public class GzipCompress implements Compress{
     @Override
     public byte[] compress(byte[] bytes) {
         if (bytes == null) {
-            throw new NullPointerException("被压缩的数据不能为空");
+            throw new IllegalArgumentException("被压缩的数据不能为空");
         }
         // ByteArrayOutputStream用于捕获GZIPOutputStream的输出，即压缩后的数据
         try (ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -49,7 +49,7 @@ public class GzipCompress implements Compress{
     @Override
     public byte[] decompress(byte[] bytes) {
         if (bytes == null) {
-            throw new NullPointerException("需要解压缩的数据不能为空");
+            throw new IllegalArgumentException("需要解压缩的数据不能为空");
         }
         try (ByteArrayOutputStream out = new ByteArrayOutputStream();
              GZIPInputStream unzip = new GZIPInputStream(new ByteArrayInputStream(bytes))) {

@@ -6,7 +6,7 @@ import io.netty.handler.codec.ReplayingDecoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sh.cloudns.lyj.rpc.compress.Compress;
-import sh.cloudns.lyj.rpc.compress.GzipCompress;
+import sh.cloudns.lyj.rpc.compress.CompressFactory;
 import sh.cloudns.lyj.rpc.entity.RpcRequest;
 import sh.cloudns.lyj.rpc.entity.RpcResponse;
 import sh.cloudns.lyj.rpc.enums.PackageTypeEnum;
@@ -24,13 +24,16 @@ import java.util.List;
 public class CommonDecoder extends ReplayingDecoder {
     private static final Logger LOGGER = LoggerFactory.getLogger(CommonDecoder.class);
 
+
     /**
      * 定义协议的魔数（Magic Number），用于识别协议的有效性
      */
     private static final int MAGIC_NUMBER = 0xCAFEBABE;
 
+    private final Compress compress = CompressFactory.getCompressInstance(0);
+
     @Override
-    protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
+    protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out){
         // 从 ByteBuf 中读取一个整数作为魔数
         int magic = in.readInt();
         // 检查魔数是否正确，如果不正确则记录错误日志并抛出异常
@@ -65,8 +68,7 @@ public class CommonDecoder extends ReplayingDecoder {
         byte[] bytes = new byte[length];
         // 从 ByteBuf 中读取字节数据到数组
         in.readBytes(bytes);
-        // 使用GZIP压缩算法进行解压缩
-        Compress compress = new GzipCompress();
+        // 使用默认压缩器进行解压缩
         bytes = compress.decompress(bytes);
         // 使用序列化器将字节数组反序列化成对象，并添加到输出列表中
         Object obj = serializer.deserialize(bytes, packageClass);
