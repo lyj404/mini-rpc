@@ -11,6 +11,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.timeout.IdleStateHandler;
+import org.springframework.stereotype.Component;
 import sh.cloudns.lyj.rpc.codec.CommonDecoder;
 import sh.cloudns.lyj.rpc.codec.CommonEncoder;
 import sh.cloudns.lyj.rpc.hook.ShutdownHook;
@@ -25,19 +26,11 @@ import java.util.concurrent.TimeUnit;
  * @Date 2024/6/10
  * @Author lyj
  */
+@Component
 public class NettyServer extends AbstractRpcServer {
-    private final CommonSerializer serializer;
-
-    public NettyServer(String host, int port) {
-        this(host, port, DEFAULT_SERIALIZER);
-    }
-
-    public NettyServer(String host, int port, Integer serializer){
-        this.host = host;
-        this.port = port;
+    public void registerService() {
         serviceRegistry = new NacosServiceRegistry();
         serviceProvider = new ServiceProviderImpl();
-        this.serializer = CommonSerializer.getByCode(serializer);
         scanServices();
     }
 
@@ -71,7 +64,7 @@ public class NettyServer extends AbstractRpcServer {
                             // 添加空闲状态处理器
                             channel.pipeline().addLast(new IdleStateHandler(30, 0, 0, TimeUnit.SECONDS))
                                                     // 添加序列化处理器
-                                                    .addLast(new CommonEncoder(serializer))
+                                                    .addLast(new CommonEncoder(CommonSerializer.getByCode(CommonSerializer.DEFAULT_SERIALIZER)))
                                                     // 添加反序列化处理器
                                                     .addLast(new CommonDecoder())
                                                     // 添加 Netty 服务器业务处理器

@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
@@ -27,11 +28,11 @@ public class PropertiesFileUtil {
      */
     public static Properties loadProperties(String fileName){
         // 获取当前线程的类加载器资源路径
-        URL url = Thread.currentThread().getContextClassLoader().getResource("");
+        URL url = Thread.currentThread().getContextClassLoader().getResource(fileName);
         String configPath = "";
         // 如果资源路径不为空，则拼接文件名以形成完整的文件路径
         if (url != null){
-            configPath = url.getPath() + fileName;
+            configPath = URLDecoder.decode(url.getPath(), StandardCharsets.UTF_8);
         }
 
         Properties properties = null;

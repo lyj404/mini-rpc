@@ -16,7 +16,10 @@ public enum ConfigEnum {
     /**
      * nacos地址
      */
-    NACOS_ADDRESS("nacos.address");
+    NACOS_ADDRESS("nacos.address"),
+    HOST("host"),
+    PORT("port"),
+    ;
 
     ConfigEnum(String value) {
         this.value = value;

@@ -1,8 +1,7 @@
 package sh.cloudns.lyj.test;
 
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import sh.cloudns.lyj.rpc.annotation.ServiceScan;
-import sh.cloudns.lyj.rpc.serializer.CommonSerializer;
-import sh.cloudns.lyj.rpc.transport.RpcServer;
 import sh.cloudns.lyj.rpc.transport.socket.server.SocketServer;
 
 /**
@@ -13,7 +12,9 @@ import sh.cloudns.lyj.rpc.transport.socket.server.SocketServer;
 @ServiceScan
 public class SocketTestServer {
     public static void main(String[] args) {
-        RpcServer server = new SocketServer("127.0.0.1", 9999, CommonSerializer.HESSIAN_SERIALIZER);
-        server.start();
+        AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext(SocketServer.class);
+        SocketServer socketServer = (SocketServer) applicationContext.getBean("socketServer");
+        socketServer.registerService();
+        socketServer.start();
     }
 }

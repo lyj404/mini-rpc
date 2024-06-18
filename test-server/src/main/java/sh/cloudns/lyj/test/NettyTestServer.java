@@ -1,8 +1,7 @@
 package sh.cloudns.lyj.test;
 
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import sh.cloudns.lyj.rpc.annotation.ServiceScan;
-import sh.cloudns.lyj.rpc.serializer.CommonSerializer;
-import sh.cloudns.lyj.rpc.transport.RpcServer;
 import sh.cloudns.lyj.rpc.transport.netty.server.NettyServer;
 
 /**
@@ -12,7 +11,9 @@ import sh.cloudns.lyj.rpc.transport.netty.server.NettyServer;
 @ServiceScan
 public class NettyTestServer {
     public static void main(String[] args) {
-        RpcServer server = new NettyServer("127.0.0.1", 9999, CommonSerializer.PROTOBUF_SERIALIZER);
-        server.start();
+        AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext(NettyServer.class);
+        NettyServer nettyServer = (NettyServer) applicationContext.getBean("nettyServer");
+        nettyServer.registerService();
+        nettyServer.start();
     }
 }

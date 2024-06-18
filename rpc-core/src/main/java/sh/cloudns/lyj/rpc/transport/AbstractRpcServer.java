@@ -4,13 +4,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sh.cloudns.lyj.rpc.annotation.Service;
 import sh.cloudns.lyj.rpc.annotation.ServiceScan;
+import sh.cloudns.lyj.rpc.enums.ConfigEnum;
 import sh.cloudns.lyj.rpc.enums.RpcErrorEnum;
 import sh.cloudns.lyj.rpc.exception.RpcException;
 import sh.cloudns.lyj.rpc.provider.ServiceProvider;
 import sh.cloudns.lyj.rpc.registry.ServiceRegistry;
+import sh.cloudns.lyj.rpc.util.PropertiesFileUtil;
 import sh.cloudns.lyj.rpc.util.ReflectUtil;
 
 import java.net.InetSocketAddress;
+import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -26,6 +29,12 @@ public abstract class AbstractRpcServer implements RpcServer {
 
     protected ServiceRegistry serviceRegistry;
     protected ServiceProvider serviceProvider;
+
+    protected AbstractRpcServer(){
+        Properties properties = PropertiesFileUtil.loadProperties(ConfigEnum.CONFIG_PATH.getValue());
+        this.host = properties.getProperty(ConfigEnum.HOST.getValue());
+        this.port = Integer.parseInt(properties.getProperty(ConfigEnum.PORT.getValue()));
+    }
 
     /**
      * 扫描服务的方法，用于查找并注册服务

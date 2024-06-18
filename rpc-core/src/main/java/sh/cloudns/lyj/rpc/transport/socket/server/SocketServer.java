@@ -1,7 +1,8 @@
 package sh.cloudns.lyj.rpc.transport.socket.server;
 
-import sh.cloudns.lyj.rpc.enums.RpcErrorEnum;
-import sh.cloudns.lyj.rpc.exception.RpcException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 import sh.cloudns.lyj.rpc.factory.ThreadPoolFactory;
 import sh.cloudns.lyj.rpc.handler.RequestHandler;
 import sh.cloudns.lyj.rpc.provider.ServiceProviderImpl;
@@ -19,32 +20,26 @@ import java.util.concurrent.ExecutorService;
  * @Date 2024/6/9
  * @Author lyj
  */
+@Component
 public class SocketServer extends AbstractRpcServer {
 
-    private final ExecutorService threadPool;
-    private final CommonSerializer serializer;
+    @Autowired
+    private ExecutorService threadPool;
     private final RequestHandler requestHandler = new RequestHandler();
 
-    public SocketServer(String host, int port) {
-        this(host, port,DEFAULT_SERIALIZER);
+    @Bean
+    public ExecutorService serviceTask(){
+        return ThreadPoolFactory.createDefaultThreadPool("socket-rpc-server");
     }
 
-    public SocketServer(String host, int port, Integer serializer) {
-        this.host = host;
-        this.port = port;
-        this.threadPool = ThreadPoolFactory.createDefaultThreadPool("socket-rpc-server");
-        this.serviceRegistry = new NacosServiceRegistry();
-        this.serviceProvider = new ServiceProviderImpl();
-        this.serializer = CommonSerializer.getByCode(serializer);
+    public void registerService() {
+        serviceRegistry = new NacosServiceRegistry();
+        serviceProvider = new ServiceProviderImpl();
         scanServices();
     }
 
     @Override
     public void start(){
-        if (serializer == null) {
-            logger.error("未设置序列化器");
-            throw new RpcException(RpcErrorEnum.SERIALIZER_NOT_FOUND);
-        }
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             logger.info("RPC服务启动...");
             Socket socket;
@@ -52,7 +47,7 @@ public class SocketServer extends AbstractRpcServer {
             while ((socket = serverSocket.accept()) != null){
                 logger.info("消费者连接：{}:{}", socket.getInetAddress(), socket.getPort());
                 // 使用线程池来处理RPC请求
-                this.threadPool.execute(new SocketRequestHandlerThread(socket, requestHandler, serializer));
+                this.threadPool.execute(new SocketRequestHandlerThread(socket, requestHandler, CommonSerializer.getByCode(CommonSerializer.DEFAULT_SERIALIZER)));
             }
             threadPool.shutdown();
         } catch (IOException e){
