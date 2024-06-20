@@ -1,6 +1,7 @@
-package sh.cloudns.lyj.rpc.loadbalancer;
+package sh.cloudns.lyj.rpc.loadbalancer.impl;
 
 import com.alibaba.nacos.api.naming.pojo.Instance;
+import sh.cloudns.lyj.rpc.loadbalancer.AbstractLoadBalance;
 
 import java.util.List;
 
@@ -9,12 +10,12 @@ import java.util.List;
  * @author: lyj
  * @date: 2024/6/13 17:34
  */
-public class RoundRobinLoadBalancer implements LoadBalancer {
+public class RoundRobinLoadBalancer extends AbstractLoadBalance {
 
     private int index = 0;
 
     @Override
-    public Instance select(List<Instance> instances) {
+    protected Instance doSelect(List<Instance> instances) {
         if (index >= instances.size()) {
             index %= instances.size();
         }

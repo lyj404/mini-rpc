@@ -4,7 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 import sh.cloudns.lyj.rpc.compress.Compress;
-import sh.cloudns.lyj.rpc.compress.CompressFactory;
+import sh.cloudns.lyj.rpc.compress.impl.CompressFactory;
 import sh.cloudns.lyj.rpc.entity.RpcRequest;
 import sh.cloudns.lyj.rpc.enums.PackageTypeEnum;
 import sh.cloudns.lyj.rpc.serializer.CommonSerializer;

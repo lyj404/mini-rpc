@@ -1,4 +1,6 @@
-package sh.cloudns.lyj.rpc.compress;
+package sh.cloudns.lyj.rpc.compress.impl;
+
+import sh.cloudns.lyj.rpc.compress.Compress;
 
 import java.util.HashMap;
 import java.util.Map;

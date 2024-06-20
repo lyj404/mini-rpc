@@ -1,4 +1,6 @@
-package sh.cloudns.lyj.rpc.compress;
+package sh.cloudns.lyj.rpc.compress.impl;
+
+import sh.cloudns.lyj.rpc.compress.Compress;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -6,10 +8,11 @@ import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
 /**
+ * 默认ZLIB算法压缩实现
  * @author: liyj
  * @date: 2024/6/18 15:42
  */
-public class DefaultCompress implements Compress{
+public class DefaultCompress implements Compress {
 
     private static final int BUFFER_SIZE = 4096;
 

@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import sh.cloudns.lyj.rpc.enums.RpcErrorEnum;
 import sh.cloudns.lyj.rpc.exception.RpcException;
 import sh.cloudns.lyj.rpc.loadbalancer.LoadBalancer;
-import sh.cloudns.lyj.rpc.loadbalancer.RandomLoadBalancer;
+import sh.cloudns.lyj.rpc.loadbalancer.impl.RandomLoadBalancer;
 import sh.cloudns.lyj.rpc.util.NacosUtil;
 
 import java.net.InetSocketAddress;

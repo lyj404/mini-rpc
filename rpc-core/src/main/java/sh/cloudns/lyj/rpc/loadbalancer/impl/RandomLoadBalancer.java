@@ -1,6 +1,7 @@
-package sh.cloudns.lyj.rpc.loadbalancer;
+package sh.cloudns.lyj.rpc.loadbalancer.impl;
 
 import com.alibaba.nacos.api.naming.pojo.Instance;
+import sh.cloudns.lyj.rpc.loadbalancer.AbstractLoadBalance;
 
 import java.util.List;
 import java.util.random.RandomGenerator;
@@ -11,9 +12,9 @@ import java.util.random.RandomGeneratorFactory;
  * @author: lyj
  * @date: 2024/6/13 17:33
  */
-public class RandomLoadBalancer implements LoadBalancer {
+public class RandomLoadBalancer extends AbstractLoadBalance {
     @Override
-    public Instance select(List<Instance> instances) {
+    protected Instance doSelect(List<Instance> instances) {
         // 使用 L64X128MixRandom 随机数生成器
         RandomGenerator randomGenerator = RandomGeneratorFactory.of("L64X128MixRandom").create();
         return instances.get(randomGenerator.nextInt(instances.size()));

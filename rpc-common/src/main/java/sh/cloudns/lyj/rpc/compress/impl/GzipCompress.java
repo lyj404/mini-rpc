@@ -1,4 +1,6 @@
-package sh.cloudns.lyj.rpc.compress;
+package sh.cloudns.lyj.rpc.compress.impl;
+
+import sh.cloudns.lyj.rpc.compress.Compress;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -11,7 +13,7 @@ import java.util.zip.GZIPOutputStream;
  * @Date 2024/6/16
  * @Author lyj
  */
-public class GzipCompress implements Compress{
+public class GzipCompress implements Compress {
 
     private static final int BUFFER_SIZE = 4096;
 

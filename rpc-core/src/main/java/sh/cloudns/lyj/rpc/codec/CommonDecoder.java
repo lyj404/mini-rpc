@@ -6,7 +6,7 @@ import io.netty.handler.codec.ReplayingDecoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sh.cloudns.lyj.rpc.compress.Compress;
-import sh.cloudns.lyj.rpc.compress.CompressFactory;
+import sh.cloudns.lyj.rpc.compress.impl.CompressFactory;
 import sh.cloudns.lyj.rpc.entity.RpcRequest;
 import sh.cloudns.lyj.rpc.entity.RpcResponse;
 import sh.cloudns.lyj.rpc.enums.PackageTypeEnum;
