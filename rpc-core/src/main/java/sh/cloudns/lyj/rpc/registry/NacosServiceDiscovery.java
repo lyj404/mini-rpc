@@ -4,6 +4,7 @@ import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.pojo.Instance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sh.cloudns.lyj.rpc.entity.RpcRequest;
 import sh.cloudns.lyj.rpc.enums.RpcErrorEnum;
 import sh.cloudns.lyj.rpc.exception.RpcException;
 import sh.cloudns.lyj.rpc.loadbalancer.LoadBalancer;
@@ -30,11 +31,12 @@ public class NacosServiceDiscovery implements ServiceDiscovery{
 
     /**
      * 根据服务名称查询服务实例的地址信息。
-     * @param serviceName 服务名称。
+     * @param rpcRequest 请求
      * @return 返回服务实例的 InetSocketAddress。
      */
     @Override
-    public InetSocketAddress lookupService(String serviceName) {
+    public InetSocketAddress lookupService(RpcRequest rpcRequest) {
+        String serviceName = rpcRequest.getRpcServiceName();
         try {
             // 从 Nacos 获取所有服务实例
             List<Instance> instances = NacosUtil.getAllInstance(serviceName);

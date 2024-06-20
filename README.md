@@ -32,6 +32,8 @@ mini-rpc -- 项目根路径
 * 采用Netty作为网络传输方式的时候，会采用Netty的心跳机制，保证客户端和服务端的连接不被断掉，避免重连
 * 实现了自定义的通信协议
 * 实现了服务提供端主动注册服务
+* 集成 Spring 通过注解注册服务
+* 处理一个接口有多个类实现的情况 ：对服务分组，发布服务的时候增加一个 group 参数即可
 ## 使用
 **定义调用接口**
 ```java
@@ -57,23 +59,25 @@ public class HelloServiceImpl implements HelloService {
 ```java
 @ServiceScan
 public class NettyTestServer {
-    public static void main(String[] args) {
-        RpcServer server = new NettyServer("127.0.0.1", 9999, CommonSerializer.PROTOBUF_SERIALIZER);
-        server.start();
-    }
+  public static void main(String[] args) {
+    AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext(NettyServer.class);
+    NettyServer nettyServer = (NettyServer) applicationContext.getBean("nettyServer");
+    nettyServer.registerService();
+    nettyServer.start();
+  }
 }
 ```
 **服务消费端**
 ```java
 public class NettyTestClient {
-    public static void main(String[] args) {
-        RpcClient client = new NettyClient(CommonSerializer.PROTOBUF_SERIALIZER);
-        RpcClientProxy rpcClientProxy = new RpcClientProxy(client);
-        HelloService helloService = rpcClientProxy.getProxy(HelloService.class);
-        HelloObject object = new HelloObject(12, "this is a message");
-        String res = helloService.hello(object);
-        System.out.println(res);
-    }
+  public static void main(String[] args) {
+    RpcClient client = new NettyClient(CommonSerializer.PROTOBUF_SERIALIZER);
+    RpcClientProxy rpcClientProxy = new RpcClientProxy(client, new RpcServiceConfig("Group1", HelloService.class));
+    HelloService helloService = rpcClientProxy.getProxy(HelloService.class);
+    HelloObject object = new HelloObject(12, "this is a message");
+    String res = helloService.hello(object);
+    System.out.println(res);
+  }
 }
 ```
 > 运行项目需要启动Nacos

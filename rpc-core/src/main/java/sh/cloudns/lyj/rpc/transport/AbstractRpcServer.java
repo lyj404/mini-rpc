@@ -66,6 +66,7 @@ public abstract class AbstractRpcServer implements RpcServer {
             if (clazz.isAnnotationPresent(Service.class)) {
                 // 检查是否有 @Service 注解
                 String serviceName = clazz.getAnnotation(Service.class).name();
+                String group = clazz.getAnnotation(Service.class).group();
                 Object obj;
                 try {
                     // 实例化服务类
@@ -78,7 +79,7 @@ public abstract class AbstractRpcServer implements RpcServer {
                 if ("".equals(serviceName)) {
                     Class<?>[] interfaces = clazz.getInterfaces();
                     for (var oneInterface : interfaces) {
-                        publishService(obj, oneInterface.getCanonicalName());
+                        publishService(obj, oneInterface.getCanonicalName() + group);
                     }
                 } else {
                     publishService(obj, serviceName);

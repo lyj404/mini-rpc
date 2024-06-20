@@ -57,7 +57,7 @@ public class SocketClient implements RpcClient {
             LOGGER.error("未设置序列化器");
             throw new RpcException(RpcErrorEnum.SERIALIZER_NOT_FOUND);
         }
-        InetSocketAddress inetSocketAddress = serviceDiscovery.lookupService(request.getInterfaceName());
+        InetSocketAddress inetSocketAddress = serviceDiscovery.lookupService(request);
         try (Socket socket = new Socket()) {
             socket.connect(inetSocketAddress);
             // 创建一个输出流，用于向服务器发送请求对象
@@ -68,7 +68,7 @@ public class SocketClient implements RpcClient {
             ObjectWriter.writeObject(outputStream, request, serializer);
             // 从输入流中读取服务器的响应对象
             Object obj = ObjectReader.readObject(inputStream);
-            RpcResponse response = (RpcResponse) obj;
+            RpcResponse<?> response = (RpcResponse<?>) obj;
             // 判断响应对象是否为空
             if (response == null) {
                 LOGGER.error("服务调用失败, service：{}",request.getInterfaceName());

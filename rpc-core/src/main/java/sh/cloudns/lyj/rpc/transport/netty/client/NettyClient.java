@@ -78,7 +78,7 @@ public class NettyClient implements RpcClient {
         CompletableFuture<RpcResponse<?>> resultFuture = new CompletableFuture<>();
         try {
             // 使用服务发现查询服务实例的地址信息
-            InetSocketAddress inetSocketAddress = serviceDiscovery.lookupService(rpcRequest.getInterfaceName());
+            InetSocketAddress inetSocketAddress = serviceDiscovery.lookupService(rpcRequest);
             // 获取 Channel 对象，用于发送 Rpc 请求
             Channel channel = ChannelProvider.get(inetSocketAddress, serializer);
             assert channel != null;

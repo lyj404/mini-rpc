@@ -35,7 +35,7 @@ public class RequestHandler {
      */
     public Object handle(RpcRequest rpcRequest) {
         // 根据请求中的接口名获取服务实例
-        Object service = SERVICE_PROVIDER.getServiceProvider(rpcRequest.getInterfaceName());
+        Object service = SERVICE_PROVIDER.getServiceProvider(rpcRequest.getRpcServiceName());
         // 调用 invokeTargetMethod 方法执行具体的服务方法调用
         return invokeTargetMethod(rpcRequest, service);
     }
@@ -56,7 +56,7 @@ public class RequestHandler {
             );
             // 通过反射调用找到的方法
             result = method.invoke(service, rpcRequest.getParameters());
-            LOGGER.info("服务：{} 成功调用方法：{}", rpcRequest.getInterfaceName(), rpcRequest.getMethodName());
+            LOGGER.info("服务：{} 成功调用方法：{}", rpcRequest.getRpcServiceName(), rpcRequest.getMethodName());
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e){
             return RpcResponse.fail(ResponseCodeEnum.METHOD_NOT_FOUND, rpcRequest.getRequestId());
         }

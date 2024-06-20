@@ -10,7 +10,7 @@ import sh.cloudns.lyj.rpc.api.HelloService;
  * @Date 2024/6/9
  * @Author lyj
  */
-@Service
+@Service(group = "Group1")
 public class HelloServiceImpl implements HelloService {
     private static final Logger LOGGER = LoggerFactory.getLogger(HelloServiceImpl.class);
 

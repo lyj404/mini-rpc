@@ -5,6 +5,7 @@ import sh.cloudns.lyj.rpc.api.HelloService;
 import sh.cloudns.lyj.rpc.serializer.CommonSerializer;
 import sh.cloudns.lyj.rpc.transport.RpcClient;
 import sh.cloudns.lyj.rpc.transport.RpcClientProxy;
+import sh.cloudns.lyj.rpc.transport.RpcServiceConfig;
 import sh.cloudns.lyj.rpc.transport.netty.client.NettyClient;
 
 /**
@@ -14,7 +15,7 @@ import sh.cloudns.lyj.rpc.transport.netty.client.NettyClient;
 public class NettyTestClient {
     public static void main(String[] args) {
         RpcClient client = new NettyClient(CommonSerializer.PROTOBUF_SERIALIZER);
-        RpcClientProxy rpcClientProxy = new RpcClientProxy(client);
+        RpcClientProxy rpcClientProxy = new RpcClientProxy(client, new RpcServiceConfig("Group1", HelloService.class));
         HelloService helloService = rpcClientProxy.getProxy(HelloService.class);
         HelloObject object = new HelloObject(12, "this is a message");
         String res = helloService.hello(object);

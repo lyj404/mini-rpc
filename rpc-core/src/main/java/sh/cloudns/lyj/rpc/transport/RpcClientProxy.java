@@ -23,8 +23,16 @@ public class RpcClientProxy implements InvocationHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(RpcClientProxy.class);
     private final RpcClient client;
 
+    private final RpcServiceConfig rpcServiceConfig;
+
     public RpcClientProxy(RpcClient client) {
         this.client = client;
+        this.rpcServiceConfig = new RpcServiceConfig();
+    }
+
+    public RpcClientProxy(RpcClient client, RpcServiceConfig rpcServiceConfig) {
+        this.client = client;
+        this.rpcServiceConfig = rpcServiceConfig;
     }
 
     /**
@@ -57,19 +65,22 @@ public class RpcClientProxy implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args) {
         LOGGER.info("调用方法：{}#{}", method.getDeclaringClass().getName(), method.getName());
         // 创建RPC请求实例
-        RpcRequest rpcRequest = new RpcRequest(
+        RpcRequest rpcRequest = RpcRequest.builder()
                 // 请求ID
-                UUID.randomUUID().toString(),
+                .requestId(UUID.randomUUID().toString())
                 // 接口名称
-                method.getDeclaringClass().getName(),
+                .interfaceName(method.getDeclaringClass().getName())
                 // 方法名称
-                method.getName(),
+                .methodName(method.getName())
                 // 方法参数
-                args,
+                .parameters(args)
                 // 方法参数类型
-                method.getParameterTypes(),
-                // 是否为心跳请求
-                false);
+                .paramTypes(method.getParameterTypes())
+                // 方法参数类型
+                .heartBeat(false)
+                // 获取服务配置信息中的group
+                .group(rpcServiceConfig.getGroup())
+                .build();
         RpcResponse<?> rpcResponse = null;
         // 根据 RpcClient 类型进行请求发送
         if (client instanceof NettyClient) {
