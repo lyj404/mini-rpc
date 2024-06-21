@@ -2,8 +2,7 @@ package sh.cloudns.lyj.rpc.serializer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import sh.cloudns.lyj.rpc.entity.RpcRequest;
 import sh.cloudns.lyj.rpc.enums.SerializerCodeEnum;
 import sh.cloudns.lyj.rpc.exception.SerializeException;
@@ -15,8 +14,8 @@ import java.io.IOException;
  * @Date 2024/6/10
  * @Author lyj
  */
+@Slf4j
 public class JsonSerializer implements CommonSerializer{
-    private static final Logger LOGGER = LoggerFactory.getLogger(JsonSerializer.class);
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -25,7 +24,7 @@ public class JsonSerializer implements CommonSerializer{
         try {
             return objectMapper.writeValueAsBytes(obj);
         } catch (JsonProcessingException e){
-            LOGGER.error("序列化时产生错误：{}", e.getMessage());
+            log.error("序列化时产生错误：{}", e.getMessage());
             throw new SerializeException("序列化时产生错误");
         }
     }
@@ -39,7 +38,7 @@ public class JsonSerializer implements CommonSerializer{
             }
             return obj;
         } catch (IOException e){
-            LOGGER.error("序列化时产生错误：{}", e.getMessage());
+            log.error("序列化时产生错误：{}", e.getMessage());
             throw new SerializeException("序列化时产生错误");
         }
     }

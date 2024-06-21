@@ -11,6 +11,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.timeout.IdleStateHandler;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import sh.cloudns.lyj.rpc.codec.CommonDecoder;
 import sh.cloudns.lyj.rpc.codec.CommonEncoder;
@@ -26,6 +27,7 @@ import java.util.concurrent.TimeUnit;
  * @Date 2024/6/10
  * @Author lyj
  */
+@Slf4j
 @Component
 public class NettyServer extends AbstractRpcServer {
     public void registerService() {
@@ -76,7 +78,7 @@ public class NettyServer extends AbstractRpcServer {
             // 等待直到服务器 socket 关闭
             future.channel().closeFuture().sync();
         } catch (InterruptedException e){
-            logger.error("启动服务器发生意外：", e);
+            log.error("启动服务器发生意外：", e);
         } finally {
             // 优雅关闭 bossGroup 和 workerGroup
             bossGroup.shutdownGracefully();

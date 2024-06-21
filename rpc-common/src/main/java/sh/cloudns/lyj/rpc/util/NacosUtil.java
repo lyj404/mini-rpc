@@ -4,8 +4,7 @@ import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.NamingFactory;
 import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.pojo.Instance;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import sh.cloudns.lyj.rpc.enums.ConfigEnum;
 import sh.cloudns.lyj.rpc.enums.RpcErrorEnum;
 import sh.cloudns.lyj.rpc.exception.RpcException;
@@ -22,9 +21,8 @@ import java.util.Set;
  * @Date 2024/6/12
  * @Author lyj
  */
+@Slf4j
 public class NacosUtil {
-    private static final Logger LOGGER = LoggerFactory.getLogger(NacosUtil.class);
-
     /**
      * Nacos 命名服务的静态实例
      */
@@ -62,7 +60,7 @@ public class NacosUtil {
             // 使用 Nacos 提供的工厂方法创建并返回 NamingService 实例
             return NamingFactory.createNamingService(addr);
         } catch (NacosException e){
-            LOGGER.error("连接nacos时发生错误：", e);
+            log.error("连接nacos时发生错误：", e);
             throw new RpcException(RpcErrorEnum.FAILED_TO_CONNECT_TO_SERVICE_REGISTRY);
         }
     }
@@ -104,7 +102,7 @@ public class NacosUtil {
                 try {
                     NAMING_SERVICE.deregisterInstance(serviceName, host, port);
                 } catch (NacosException e) {
-                    LOGGER.error("注销服务 {} 失败", serviceName, e);
+                    log.error("注销服务 {} 失败", serviceName, e);
                 }
             }
         }

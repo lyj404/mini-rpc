@@ -2,8 +2,7 @@ package sh.cloudns.lyj.rpc.serializer;
 
 import com.caucho.hessian.io.HessianInput;
 import com.caucho.hessian.io.HessianOutput;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import sh.cloudns.lyj.rpc.enums.SerializerCodeEnum;
 import sh.cloudns.lyj.rpc.exception.SerializeException;
 
@@ -16,9 +15,9 @@ import java.io.IOException;
  * @Date 2024/6/10
  * @Author lyj
  */
+@Slf4j
 public class HessianSerializer implements CommonSerializer{
-    private static final Logger LOGGER = LoggerFactory.getLogger(HessianSerializer.class);
-    
+
     @Override
     public byte[] serialize(Object obj) {
         HessianOutput hessianOutput = null;
@@ -27,14 +26,14 @@ public class HessianSerializer implements CommonSerializer{
             hessianOutput.writeObject(obj);
             return byteArrayOutputStream.toByteArray();
         } catch (IOException e){
-            LOGGER.error("序列化时发生错误: ", e);
+            log.error("序列化时发生错误: ", e);
             throw new SerializeException("序列化时发生错误");
         } finally {
             if (hessianOutput != null){
                 try {
                     hessianOutput.close();
                 } catch (IOException e){
-                    LOGGER.error("关闭Hessian时发生错误：", e);
+                    log.error("关闭Hessian时发生错误：", e);
                 }
             }
         }
@@ -47,7 +46,7 @@ public class HessianSerializer implements CommonSerializer{
             hessianInput = new HessianInput(byteArrayInputStream);
             return hessianInput.readObject();
         } catch (IOException e){
-            LOGGER.error("反序列化时发生错误: ", e);
+            log.error("反序列化时发生错误: ", e);
             throw new SerializeException("反序列化时发生错误");
         } finally {
             if (hessianInput != null){

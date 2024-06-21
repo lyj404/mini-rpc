@@ -1,7 +1,6 @@
 package sh.cloudns.lyj.rpc.transport;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import sh.cloudns.lyj.rpc.annotation.Service;
 import sh.cloudns.lyj.rpc.annotation.ServiceScan;
 import sh.cloudns.lyj.rpc.enums.ConfigEnum;
@@ -20,9 +19,8 @@ import java.util.Set;
  * @author: lyj
  * @date: 2024/6/14 11:58
  */
+@Slf4j
 public abstract class AbstractRpcServer implements RpcServer {
-
-    protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
     protected String host;
     protected int port;
@@ -47,12 +45,12 @@ public abstract class AbstractRpcServer implements RpcServer {
             startClass = Class.forName(mainClassName);
             // 检查启动类是否有 @ServiceScan 注解
             if (!startClass.isAnnotationPresent(ServiceScan.class)) {
-                logger.error("启动类缺 @ServiceScan少注解");
+                log.error("启动类缺 @ServiceScan少注解");
                 throw new RpcException(RpcErrorEnum.SERVICE_SCAN_PACKAGE_NOT_FOUND);
             }
         } catch (ClassNotFoundException e) {
             // 启动类未找到异常处理
-            logger.error("启动类未找到");
+            log.error("启动类未找到");
             throw new RpcException(RpcErrorEnum.UNKNOWN_ERROR);
         }
         // 获取基础包名
@@ -72,7 +70,7 @@ public abstract class AbstractRpcServer implements RpcServer {
                     // 实例化服务类
                     obj = clazz.getDeclaredConstructor().newInstance();
                 } catch (Exception e) {
-                    logger.error("创建 " + clazz + " 时发生错误");
+                    log.error("创建 " + clazz + " 时发生错误");
                     continue;
                 }
                 // 根据服务名进行服务注册

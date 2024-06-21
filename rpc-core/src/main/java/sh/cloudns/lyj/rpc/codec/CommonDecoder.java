@@ -3,8 +3,7 @@ package sh.cloudns.lyj.rpc.codec;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ReplayingDecoder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import sh.cloudns.lyj.rpc.compress.Compress;
 import sh.cloudns.lyj.rpc.compress.impl.CompressFactory;
 import sh.cloudns.lyj.rpc.entity.RpcRequest;
@@ -21,9 +20,8 @@ import java.util.List;
  * @Date 2024/6/10
  * @Author lyj
  */
+@Slf4j
 public class CommonDecoder extends ReplayingDecoder {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CommonDecoder.class);
-
 
     /**
      * 定义协议的魔数（Magic Number），用于识别协议的有效性
@@ -38,7 +36,7 @@ public class CommonDecoder extends ReplayingDecoder {
         int magic = in.readInt();
         // 检查魔数是否正确，如果不正确则记录错误日志并抛出异常
         if (magic != MAGIC_NUMBER) {
-            LOGGER.error("不识别的协议包：{}", magic);
+            log.error("不识别的协议包：{}", magic);
             throw new RpcException(RpcErrorEnum.UNKNOWN_PROTOCOL);
         }
         // 读取数据包的类型码
@@ -51,7 +49,7 @@ public class CommonDecoder extends ReplayingDecoder {
             packageClass = RpcResponse.class;
         } else {
             // 如果类型码不匹配，则记录错误日志并抛出异常
-            LOGGER.error("不识别的整数包：{}", packageCode);
+            log.error("不识别的整数包：{}", packageCode);
             throw new RpcException(RpcErrorEnum.UNKNOWN_PACKAGE_TYPE);
         }
         // 读取序列化器的类型码
@@ -59,7 +57,7 @@ public class CommonDecoder extends ReplayingDecoder {
         // 根据类型码获取对应的序列化器实例
         CommonSerializer serializer = CommonSerializer.getByCode(serializerCode);
         if (serializer == null) {
-            LOGGER.error("不识别的反序列化器：{}", serializerCode);
+            log.error("不识别的反序列化器：{}", serializerCode);
             throw new RpcException(RpcErrorEnum.UNKNOWN_SERIALIZER);
         }
         // 读取数据包的长度

@@ -1,7 +1,6 @@
 package sh.cloudns.lyj.rpc.transport.socket.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import sh.cloudns.lyj.rpc.entity.RpcRequest;
 import sh.cloudns.lyj.rpc.entity.RpcResponse;
 import sh.cloudns.lyj.rpc.enums.PackageTypeEnum;
@@ -17,8 +16,8 @@ import java.io.InputStream;
  * @Date 2024/6/10
  * @Author lyj
  */
+@Slf4j
 public class ObjectReader {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ObjectReader.class);
     private static final int MAGIC_NUMBER = 0xCAFEBABE;
 
     /**
@@ -34,7 +33,7 @@ public class ObjectReader {
         int magic = bytesToInt(numberBytes);
         // 验证魔数是否正确，如果不正确则记录错误日志并抛出异常
         if (magic != MAGIC_NUMBER) {
-            LOGGER.error("不识别的协议包：{}", magic);
+            log.error("不识别的协议包：{}", magic);
             throw new RpcException(RpcErrorEnum.UNKNOWN_PROTOCOL);
         }
         // 读取包类型码
@@ -48,7 +47,7 @@ public class ObjectReader {
             packageClass = RpcResponse.class;
         } else {
             // 如果类型码不匹配，则记录错误日志并抛出异常
-            LOGGER.error("不识别的数据包：{}", packageCode);
+            log.error("不识别的数据包：{}", packageCode);
             throw new RpcException(RpcErrorEnum.UNKNOWN_PACKAGE_TYPE);
         }
         // 读取序列化器的类型码
@@ -58,7 +57,7 @@ public class ObjectReader {
         CommonSerializer serializer = CommonSerializer.getByCode(serializerCode);
         if (serializer == null) {
             // 如果没有找到对应的序列化器，则记录错误日志并抛出异常
-            LOGGER.error("不识别的反序列化器：{}", serializerCode);
+            log.error("不识别的反序列化器：{}", serializerCode);
             throw new RpcException(RpcErrorEnum.UNKNOWN_SERIALIZER);
         }
         // 读取数据长度

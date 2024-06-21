@@ -1,7 +1,6 @@
 package sh.cloudns.lyj.rpc.transport;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import sh.cloudns.lyj.rpc.entity.RpcRequest;
 import sh.cloudns.lyj.rpc.entity.RpcResponse;
 import sh.cloudns.lyj.rpc.transport.netty.client.NettyClient;
@@ -19,8 +18,8 @@ import java.util.concurrent.CompletableFuture;
  * @Date 2024/6/9
  * @Author lyj
  */
+@Slf4j
 public class RpcClientProxy implements InvocationHandler {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RpcClientProxy.class);
     private final RpcClient client;
 
     private final RpcServiceConfig rpcServiceConfig;
@@ -63,7 +62,7 @@ public class RpcClientProxy implements InvocationHandler {
     @SuppressWarnings("unchecked")
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) {
-        LOGGER.info("调用方法：{}#{}", method.getDeclaringClass().getName(), method.getName());
+        log.info("调用方法：{}#{}", method.getDeclaringClass().getName(), method.getName());
         // 创建RPC请求实例
         RpcRequest rpcRequest = RpcRequest.builder()
                 // 请求ID
@@ -89,7 +88,7 @@ public class RpcClientProxy implements InvocationHandler {
                 CompletableFuture<RpcResponse<?>> completableFuture = (CompletableFuture<RpcResponse<?>>) client.sendRequest(rpcRequest);
                 rpcResponse = completableFuture.get();
             } catch (Exception e) {
-                LOGGER.error("方法调用请求发送失败", e);
+                log.error("方法调用请求发送失败", e);
                 return null;
             }
         }

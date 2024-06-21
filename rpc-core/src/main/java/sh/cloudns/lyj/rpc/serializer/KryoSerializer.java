@@ -3,8 +3,7 @@ package sh.cloudns.lyj.rpc.serializer;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import sh.cloudns.lyj.rpc.entity.RpcRequest;
 import sh.cloudns.lyj.rpc.entity.RpcResponse;
 import sh.cloudns.lyj.rpc.enums.SerializerCodeEnum;
@@ -18,9 +17,8 @@ import java.io.ByteArrayOutputStream;
  * @Date 2024/6/10
  * @Author lyj
  */
+@Slf4j
 public class KryoSerializer implements CommonSerializer{
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(KryoSerializer.class);
 
     private static final ThreadLocal<Kryo> KRYO_THREAD_LOCAL = ThreadLocal.withInitial(() -> {
         // 创建 Kryo 实例
@@ -47,7 +45,7 @@ public class KryoSerializer implements CommonSerializer{
             // 返回序列化后的字节数组
             return output.toBytes();
         } catch (Exception e){
-            LOGGER.error("序列化是发生错误：", e);
+            log.error("序列化是发生错误：", e);
             throw new SerializeException("序列化时发生错误");
         }
     }
@@ -62,7 +60,7 @@ public class KryoSerializer implements CommonSerializer{
             KRYO_THREAD_LOCAL.remove();
             return object;
         } catch (Exception e){
-            LOGGER.error("发序列化是发生错误：", e);
+            log.error("发序列化是发生错误：", e);
             throw new SerializeException("发序列化时发生错误");
         }
     }

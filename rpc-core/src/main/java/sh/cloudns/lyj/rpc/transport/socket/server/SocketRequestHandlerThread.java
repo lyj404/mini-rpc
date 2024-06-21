@@ -1,7 +1,6 @@
 package sh.cloudns.lyj.rpc.transport.socket.server;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import sh.cloudns.lyj.rpc.entity.RpcRequest;
 import sh.cloudns.lyj.rpc.entity.RpcResponse;
 import sh.cloudns.lyj.rpc.handler.RequestHandler;
@@ -19,8 +18,8 @@ import java.net.Socket;
  * @Date 2024/6/9
  * @Author lyj
  */
+@Slf4j
 public class SocketRequestHandlerThread implements Runnable{
-    private static final Logger LOGGER = LoggerFactory.getLogger(SocketRequestHandlerThread.class);
 
     private final Socket socket;
     private final RequestHandler requestHandler;
@@ -48,7 +47,7 @@ public class SocketRequestHandlerThread implements Runnable{
             // 序列化 RpcResponse 对象并写入输出流，发送回客户端
             ObjectWriter.writeObject(outputStream, response, serializer);
         } catch (IOException e){
-            LOGGER.error("调用或发送时有错误发生:", e);
+            log.error("调用或发送时有错误发生:", e);
         }
     }
 }

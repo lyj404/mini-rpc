@@ -4,20 +4,19 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author: liyj
  * @date: 2024/6/20 19:32
  */
+@Slf4j
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class RpcServiceConfig {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RpcServiceConfig.class);
 
     /**
      * 当接口有多个实现类时，通过分组标识进行区分
@@ -34,7 +33,7 @@ public class RpcServiceConfig {
      * @return 返回完整的 RPC 服务名称
      */
     public String getRpcServiceName() {
-        LOGGER.info("getRpcServiceName: {}", this.getInterfaceName() + this.getGroup());
+        log.info("getRpcServiceName: {}", this.getInterfaceName() + this.getGroup());
         return this.getInterfaceName() + this.getGroup();
     }
 

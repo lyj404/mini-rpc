@@ -1,7 +1,6 @@
 package sh.cloudns.lyj.rpc.provider;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import sh.cloudns.lyj.rpc.enums.RpcErrorEnum;
 import sh.cloudns.lyj.rpc.exception.RpcException;
 
@@ -14,9 +13,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * @Date 2024/6/9
  * @Author lyj
  */
+@Slf4j
 public class ServiceProviderImpl implements ServiceProvider {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ServiceProviderImpl.class);
-
     /**
      * 用于存储服务对象的映射表，键是服务接口的全类名。
      * ConcurrentHashMap 提供线程安全的键值对存储。
@@ -42,7 +40,7 @@ public class ServiceProviderImpl implements ServiceProvider {
         registerService.add(serviceName);
         // 将服务实例添加到服务映射表中
         serviceMap.put(serviceName, service);
-        LOGGER.info("向接口：{} 注册服务：{}", service.getClass().getInterfaces(), serviceName);
+        log.info("向接口：{} 注册服务：{}", service.getClass().getInterfaces(), serviceName);
     }
 
     /**

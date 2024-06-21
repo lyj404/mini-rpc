@@ -1,7 +1,6 @@
 package sh.cloudns.lyj.rpc.handler;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import sh.cloudns.lyj.rpc.entity.RpcRequest;
 import sh.cloudns.lyj.rpc.entity.RpcResponse;
 import sh.cloudns.lyj.rpc.enums.ResponseCodeEnum;
@@ -16,9 +15,8 @@ import java.lang.reflect.Method;
  * @Date 2024/6/9
  * @Author lyj
  */
+@Slf4j
 public class RequestHandler {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RequestHandler.class);
-
     /**
      * 服务提供者，用于获取服务实例
      */
@@ -56,7 +54,7 @@ public class RequestHandler {
             );
             // 通过反射调用找到的方法
             result = method.invoke(service, rpcRequest.getParameters());
-            LOGGER.info("服务：{} 成功调用方法：{}", rpcRequest.getRpcServiceName(), rpcRequest.getMethodName());
+            log.info("服务：{} 成功调用方法：{}", rpcRequest.getRpcServiceName(), rpcRequest.getMethodName());
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e){
             return RpcResponse.fail(ResponseCodeEnum.METHOD_NOT_FOUND, rpcRequest.getRequestId());
         }

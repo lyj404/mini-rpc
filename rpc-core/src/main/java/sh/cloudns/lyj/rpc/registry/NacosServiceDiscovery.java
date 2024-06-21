@@ -2,8 +2,7 @@ package sh.cloudns.lyj.rpc.registry;
 
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.pojo.Instance;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import sh.cloudns.lyj.rpc.entity.RpcRequest;
 import sh.cloudns.lyj.rpc.enums.RpcErrorEnum;
 import sh.cloudns.lyj.rpc.exception.RpcException;
@@ -19,9 +18,8 @@ import java.util.Objects;
  * @Date 2024/6/12
  * @Author lyj
  */
+@Slf4j
 public class NacosServiceDiscovery implements ServiceDiscovery{
-    private static final Logger LOGGER = LoggerFactory.getLogger(NacosServiceRegistry.class);
-
     private final LoadBalancer loadBalancer;
 
     public NacosServiceDiscovery(LoadBalancer loadBalancer) {
@@ -42,7 +40,7 @@ public class NacosServiceDiscovery implements ServiceDiscovery{
             List<Instance> instances = NacosUtil.getAllInstance(serviceName);
             // 如果没有找到服务实例，记录错误日志并抛出异常
             if (instances.isEmpty()) {
-                LOGGER.error("找不到对应的服务：" + serviceName);
+                log.error("找不到对应的服务：" + serviceName);
                 throw new RpcException(RpcErrorEnum.SERVICE_NOT_FOUND);
             }
             // 使用负载均衡器从服务实例中选择一个实例
@@ -50,7 +48,7 @@ public class NacosServiceDiscovery implements ServiceDiscovery{
             // 返回选中实例的地址和端口信息
             return new InetSocketAddress(instance.getIp(), instance.getPort());
         } catch (NacosException e){
-            LOGGER.error("获取服务时发生错误: ", e);
+            log.error("获取服务时发生错误: ", e);
         }
         return null;
     }

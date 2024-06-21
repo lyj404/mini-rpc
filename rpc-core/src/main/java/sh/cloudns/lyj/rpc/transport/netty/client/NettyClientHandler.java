@@ -7,8 +7,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.ReferenceCountUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import sh.cloudns.lyj.rpc.entity.RpcRequest;
 import sh.cloudns.lyj.rpc.entity.RpcResponse;
 import sh.cloudns.lyj.rpc.factory.SingletonFactory;
@@ -21,9 +20,8 @@ import java.net.InetSocketAddress;
  * @Date 2024/6/10
  * @Author lyj
  */
+@Slf4j
 public class NettyClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(NettyClientHandler.class);
 
     private final UnprocessedRequests unprocessedRequests;
 
@@ -40,7 +38,7 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<RpcResponse>
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RpcResponse msg) {
         try {
-            LOGGER.info(String.format("客户端接收到信息： %s", msg));
+            log.info(String.format("客户端接收到信息： %s", msg));
             // 使用 UnprocessedRequests 的实例完成与请求 ID 相关联的 future
             unprocessedRequests.complete(msg);
         } finally {
@@ -57,7 +55,7 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<RpcResponse>
      */
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        LOGGER.error("处理过程调用时有错误发生：{}", cause.getMessage());
+        log.error("处理过程调用时有错误发生：{}", cause.getMessage());
         // 关闭发生异常的 ChannelHandlerContext，释放资源
         ctx.close();
     }
@@ -74,7 +72,7 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<RpcResponse>
             IdleState state = ((IdleStateEvent) evt).state();
             if (state == IdleState.WRITER_IDLE){
                 // 如果检测到写入操作空闲，则发送心跳包
-                LOGGER.info("发送心跳包 [{}]", ctx.channel().remoteAddress());
+                log.info("发送心跳包 [{}]", ctx.channel().remoteAddress());
                 // 获取 Channel 对象
                 Channel channel = ChannelProvider.get((InetSocketAddress) ctx.channel().remoteAddress(), CommonSerializer.getByCode(CommonSerializer.DEFAULT_SERIALIZER));
                 RpcRequest rpcRequest = new RpcRequest();

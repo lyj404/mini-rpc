@@ -1,7 +1,6 @@
 package sh.cloudns.lyj.rpc.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -16,9 +15,8 @@ import java.util.Properties;
  * @Date 2024/6/16
  * @Author lyj
  */
+@Slf4j
 public class PropertiesFileUtil {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PropertiesFileUtil.class);
-
     private PropertiesFileUtil(){}
 
     /**
@@ -44,7 +42,7 @@ public class PropertiesFileUtil {
             // 加载输入流中的属性到Properties对象
             properties.load(inputStreamReader);
         } catch (IOException e){
-            LOGGER.error("读取配置文件[{}]发生错误", fileName);
+            log.error("读取配置文件[{}]发生错误", fileName);
         }
         return properties;
     }

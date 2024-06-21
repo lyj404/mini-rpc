@@ -1,20 +1,25 @@
 package sh.cloudns.lyj.rpc.factory;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Description 创建 ThreadPool(线程池) 的工具类
  * @Date 2024/6/10
  * @Author lyj
  */
+@Slf4j
 public class ThreadPoolFactory {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ThreadPoolFactory.class);
 
     /**
      * 核心线程数
@@ -36,7 +41,7 @@ public class ThreadPoolFactory {
      */
     private static final int BLOCKING_QUEUE_CAPACITY = 100;
 
-    private static Map<String, ExecutorService> threadPollsMap = new ConcurrentHashMap<>();
+    private static final Map<String, ExecutorService> threadPollsMap = new ConcurrentHashMap<>();
 
     private ThreadPoolFactory(){}
 
@@ -72,19 +77,19 @@ public class ThreadPoolFactory {
      * 关闭所有线程池。
      */
     public static void shutDownAll(){
-        LOGGER.info("关闭所有线程池");
+        log.info("关闭所有线程池");
         // 使用 parallelStream 并行关闭线程池
         threadPollsMap.entrySet().parallelStream().forEach(entry -> {
             // 获取线程池实例
             ExecutorService executorService = entry.getValue();
             // 启动关闭线程池流程
             executorService.shutdown();
-            LOGGER.info("关闭线程池 [{}] [{}]", entry.getKey(), executorService.isTerminated());
+            log.info("关闭线程池 [{}] [{}]", entry.getKey(), executorService.isTerminated());
             try {
                 // 等待线程池关闭
                 executorService.awaitTermination(10, TimeUnit.SECONDS);
             } catch (InterruptedException e){
-                LOGGER.error("关闭线程池失败！");
+                log.error("关闭线程池失败！");
                 // 中断时尝试立即关闭线程池
                 executorService.shutdownNow();
             }

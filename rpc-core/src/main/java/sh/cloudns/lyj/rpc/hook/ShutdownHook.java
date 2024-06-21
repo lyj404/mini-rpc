@@ -1,7 +1,6 @@
 package sh.cloudns.lyj.rpc.hook;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import sh.cloudns.lyj.rpc.factory.ThreadPoolFactory;
 import sh.cloudns.lyj.rpc.util.NacosUtil;
 
@@ -10,9 +9,8 @@ import sh.cloudns.lyj.rpc.util.NacosUtil;
  * @Date 2024/6/13
  * @Author lyj
  */
+@Slf4j
 public class ShutdownHook {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ShutdownHook.class);
-
     /**
      * 静态单例，用于延迟初始化
      */
@@ -30,7 +28,7 @@ public class ShutdownHook {
      * 添加清理所有资源的钩子方法
      */
     public void addClearAllHook(){
-        LOGGER.info("关闭后将自动注销所有服务");
+        log.info("关闭后将自动注销所有服务");
         // 添加 JVM 关闭钩子，当 JVM 关闭时会执行传入的线程任务
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             // 调用 NacosUtil 的 clearRegister 方法，用于注销所有注册到 Nacos 的服务

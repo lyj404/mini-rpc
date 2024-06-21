@@ -6,8 +6,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import sh.cloudns.lyj.rpc.entity.RpcRequest;
 import sh.cloudns.lyj.rpc.entity.RpcResponse;
 import sh.cloudns.lyj.rpc.enums.RpcErrorEnum;
@@ -27,8 +26,8 @@ import java.util.concurrent.CompletableFuture;
  * @Date 2024/6/10
  * @Author lyj
  */
+@Slf4j
 public class NettyClient implements RpcClient {
-    private static final Logger LOGGER = LoggerFactory.getLogger(NettyClient.class);
 
     private static final Bootstrap BOOTSTRAP;
 
@@ -71,7 +70,7 @@ public class NettyClient implements RpcClient {
     @Override
     public CompletableFuture<RpcResponse<?>> sendRequest(RpcRequest rpcRequest) {
         if (serializer == null) {
-            LOGGER.error("未设置序列化器");
+            log.error("未设置序列化器");
             throw new RpcException(RpcErrorEnum.SERIALIZER_NOT_FOUND);
         }
         // 创建一个 CompletableFuture，用于异步处理 Rpc 响应
@@ -91,18 +90,18 @@ public class NettyClient implements RpcClient {
             // 将请求写入通道，并刷新发送缓冲区
             channel.writeAndFlush(rpcRequest).addListener((ChannelFutureListener) future1 -> {
                 if (future1.isSuccess()){
-                    LOGGER.info(String.format("客户端发送消息：%s", rpcRequest));
+                    log.info(String.format("客户端发送消息：%s", rpcRequest));
                 } else {
                     // 如果发送失败，关闭 Channel 并完成异常
                     future1.channel().close();
                     resultFuture.completeExceptionally(future1.cause());
-                    LOGGER.error("发送消息是产生错误：", future1.cause());
+                    log.error("发送消息是产生错误：", future1.cause());
                 }
             });
         } catch (Exception e){
             // 如果发生异常，从未处理请求的管理器中移除请求 ID
             unprocessedRequests.remove(rpcRequest.getRequestId());
-            LOGGER.error("发送消息是产生错误：", e);
+            log.error("发送消息是产生错误：", e);
             Thread.currentThread().interrupt();
         }
         return resultFuture;

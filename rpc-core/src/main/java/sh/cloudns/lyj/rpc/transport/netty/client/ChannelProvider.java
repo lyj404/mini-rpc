@@ -10,8 +10,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.timeout.IdleStateHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import sh.cloudns.lyj.rpc.codec.CommonDecoder;
 import sh.cloudns.lyj.rpc.codec.CommonEncoder;
 import sh.cloudns.lyj.rpc.serializer.CommonSerializer;
@@ -29,8 +28,8 @@ import java.util.concurrent.TimeUnit;
  * @Date 2024/6/10
  * @Author lyj
  */
+@Slf4j
 public class ChannelProvider {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ChannelProvider.class);
 
     /**
      * 用于处理网络事件的 EventLoopGroup
@@ -85,7 +84,7 @@ public class ChannelProvider {
             // 尝试连接到服务器，并获取 Channel 对象
             channel = connect(bootstrap, inetSocketAddress);
         } catch (ExecutionException | InterruptedException e) {
-            LOGGER.error("获取channel时发生错误：", e);
+            log.error("获取channel时发生错误：", e);
             return null;
         }
         // 将新创建的 Channel 添加到 channels Map 中
@@ -105,7 +104,7 @@ public class ChannelProvider {
         CompletableFuture<Channel> completableFuture = new CompletableFuture<>();
         bootstrap.connect(inetSocketAddress).addListener((ChannelFutureListener) future -> {
             if (future.isSuccess()) {
-                LOGGER.info("客户端连接成功");
+                log.info("客户端连接成功");
                 completableFuture.complete(future.channel());
             } else {
                 throw new IllegalStateException();

@@ -1,8 +1,7 @@
 package sh.cloudns.lyj.rpc.registry;
 
 import com.alibaba.nacos.api.exception.NacosException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import sh.cloudns.lyj.rpc.enums.RpcErrorEnum;
 import sh.cloudns.lyj.rpc.exception.RpcException;
 import sh.cloudns.lyj.rpc.util.NacosUtil;
@@ -14,9 +13,8 @@ import java.net.InetSocketAddress;
  * @Date 2024/6/11
  * @Author lyj
  */
+@Slf4j
 public class NacosServiceRegistry implements ServiceRegistry{
-    private static final Logger LOGGER = LoggerFactory.getLogger(NacosServiceRegistry.class);
-
     /**
      * 用于注册服务。
      * @param serviceName 服务名称，用于唯一标识服务。
@@ -29,7 +27,7 @@ public class NacosServiceRegistry implements ServiceRegistry{
             // 这将 Nacos 服务名与服务实例的地址和端口关联起来。
             NacosUtil.registerService(serviceName, inetSocketAddress);
         } catch (NacosException e){
-            LOGGER.error("注册服务时发生错误：", e);
+            log.error("注册服务时发生错误：", e);
             throw new RpcException(RpcErrorEnum.REGISTER_SERVICE_FAILED);
         }
     }

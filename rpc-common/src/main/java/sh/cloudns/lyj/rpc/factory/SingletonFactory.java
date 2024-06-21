@@ -9,7 +9,7 @@ import java.util.Map;
  * @Author lyj
  */
 public class SingletonFactory {
-    private static final Map<Class<?>, Object> objectMap = new HashMap<>();
+    private static final Map<Class<?>, Object> objectMap = new HashMap<>(16);
 
     private SingletonFactory(){}
 
