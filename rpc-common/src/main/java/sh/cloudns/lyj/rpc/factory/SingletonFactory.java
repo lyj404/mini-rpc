@@ -21,9 +21,10 @@ public class SingletonFactory {
      */
     public static <T> T getInstance(Class<T> clazz) {
         // 从 objectMap 中获取 clazz 类型的实例
-        Object instance = objectMap.get(clazz);
+        Object instance;
         // 对 clazz 使用 synchronized 同步锁，确保线程安全
         synchronized (clazz){
+            instance = objectMap.get(clazz);
             // 如果 instance 为 null，说明尚未创建实例
             if (instance == null) {
                 try {

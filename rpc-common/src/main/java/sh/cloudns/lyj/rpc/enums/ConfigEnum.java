@@ -1,5 +1,6 @@
 package sh.cloudns.lyj.rpc.enums;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
@@ -8,6 +9,7 @@ import lombok.Getter;
  * @Author lyj
  */
 @Getter
+@AllArgsConstructor
 public enum ConfigEnum {
     /**
      * 配置文件路径
@@ -20,10 +22,6 @@ public enum ConfigEnum {
     HOST("host"),
     PORT("port"),
     ;
-
-    ConfigEnum(String value) {
-        this.value = value;
-    }
 
     private final String value;
 }

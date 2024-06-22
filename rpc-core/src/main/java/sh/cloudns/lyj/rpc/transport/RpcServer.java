@@ -1,14 +1,11 @@
 package sh.cloudns.lyj.rpc.transport;
 
-import sh.cloudns.lyj.rpc.serializer.CommonSerializer;
-
 /**
  * @Description RPC服务类通用接口
  * @Date 2024/6/10
  * @Author lyj
  */
 public interface RpcServer {
-    int DEFAULT_SERIALIZER = CommonSerializer.KRYO_SERIALIZER;
 
     /**
      * 启动服务类
