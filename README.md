@@ -1,7 +1,7 @@
 # mini-rpc
 ## 介绍
-mini-rpc是基于Nacos + Netty实现的RPC框架。在网络传输方面分别实现了Java原生的Sockt和Netty版本，并且实现了多种序列化方式和负载均衡算法。
-> 使用Socket进行网络传输是BIO通信模式，使用Netyy进行网络传输是NIO通信模式 
+mini-rpc是基于Nacos + Netty实现的RPC框架。在网络传输方面分别实现了Java原生的Socket和Netty版本，并且实现了多种序列化方式和负载均衡算法。
+> 使用Socket进行网络传输是BIO通信模式，使用Netty进行网络传输是NIO通信模式 
 
 ![architecture.png](img/architecture.png)
 ## 项目模块说明
@@ -27,7 +27,7 @@ mini-rpc -- 项目根路径
 ## 功能
 * 实现了Socket传输和Netty传输两种网络传输方式
 * 基于模板设计模式实现了随机和轮询两种负载均衡算法
-* 实现了Json、Kryo、Hessian、Protostuff四种不同的序列化方式，实现了Gzip和Zlib两种压缩算法,在传输过程种实现数据压缩，减少网络数据传输量，提高传输效率
+* 实现了Json、Kryo、Hessian、Protostuff四种不同的序列化方式，实现了GZip和ZLib两种压缩算法,在传输过程种实现数据压缩，减少网络数据传输量，提高传输效率
 * 使用Nacos作为服务注册中心，管理服务提供者的信息
 * 采用Netty作为网络传输方式的时候，会采用Netty的心跳机制，保证客户端和服务端的连接不被断掉，避免重连
 * 实现了自定义的通信协议
