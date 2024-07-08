@@ -80,6 +80,6 @@ public class NettyTestClient {
   }
 }
 ```
-> 运行项目需要启动Nacos
+> 运行项目需要启动nacos
 
 本项目的核心目标是通过亲手实现一个框架的过程，来深入学习框架开发的技术和方法

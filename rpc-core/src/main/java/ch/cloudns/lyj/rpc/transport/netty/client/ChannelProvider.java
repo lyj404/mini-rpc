@@ -64,7 +64,6 @@ public class ChannelProvider {
                 return channel;
             } else {
                 // 如果 Channel 不存在或不再活跃，从 channels Map 中移除
-                assert channels != null;
                 channels.remove(key);
             }
         }
